@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
+// For display prompt
+#include <string.h>
 #include <unistd.h>
 #include <pwd.h>
 #include <sys/utsname.h>
@@ -21,7 +22,7 @@ void display_prompt() {
 
     // Get username
     const char *user;
-    uid_t uid = geteuid();
+    uid_t uid = getuid();
     struct passwd *pw = getpwuid(uid);
     if(pw) user = pw->pw_name;
     else user = "user";
