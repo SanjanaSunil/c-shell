@@ -14,40 +14,43 @@
 #define MAG  "\x1B[35m"
 #define CYN  "\x1B[36m"
 #define WHT  "\x1B[37m"
+#define BOLD  "\033[1m"
 #define RESET  "\x1B[0m"
 
 void display_prompt() {
 
-    // Username
+    // Get username
     const char *user;
     uid_t uid = geteuid();
     struct passwd *pw = getpwuid(uid);
     if(pw) user = pw->pw_name;
     else user = "user";
 
-    // System name
+    // Get system name
     const char *sysname;
     struct utsname sysinfo;
     uname(&sysinfo);
     sysname = sysinfo.nodename;
 
-    // Current working directory
+    // Get current working dir
     char *pwd = malloc(100*sizeof(char));
 	getcwd(pwd, 100);
 
-    // Home directory
+    // Get home dir
     const char *home_dir = pw->pw_dir;
 
-    int i;
-    for(i=0; i<strlen(home_dir); ++i)
-    {
-        if(home_dir[i] != pwd[i]) break;
-    }
+    // Get current dir in relation to home
+    int i;  
+    int home_dir_len = strlen(home_dir);
+    int pwd_len = strlen(pwd);
+    for(i=0; i<home_dir_len; ++i) if(home_dir[i]!=pwd[i]) break;
 
-    printf(GRN "%s@%s" RESET, user, sysname);
-    printf(WHT ":" RESET);
-    printf(CYN "~%s" RESET, &pwd[i]);
-    printf(WHT ">\n" RESET);
+    // Print command prompt
+    printf(BOLD GRN "%s@%s" RESET, user, sysname);
+    printf(BOLD WHT ":" RESET);
+    if(i!=home_dir_len) printf(BOLD BLU "%s" RESET, pwd);
+    else printf(BOLD BLU "~%s" RESET, &pwd[i]);
+    printf(BOLD WHT "> \n" RESET);
 
     return;
 }
