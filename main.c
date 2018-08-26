@@ -21,21 +21,19 @@
 void display_prompt() {
 
     // Get username
-    const char *user;
     uid_t uid = getuid();
     struct passwd *pw = getpwuid(uid);
-    if(pw) user = pw->pw_name;
-    else user = "user";
+    const char *user = pw->pw_name;
 
     // Get system name
-    const char *sysname;
     struct utsname sysinfo;
     uname(&sysinfo);
-    sysname = sysinfo.nodename;
+    const char *sysname = sysinfo.nodename;
 
     // Get current working dir
-    char *pwd = malloc(100*sizeof(char));
-	getcwd(pwd, 100);
+    //char *pwd = malloc(1000*sizeof(char));
+    char cur_dir[1000];
+	getcwd(cur_dir, sizeof(cur_dir));
 
     // Get home dir
     const char *home_dir = pw->pw_dir;
@@ -43,22 +41,61 @@ void display_prompt() {
     // Get current dir in relation to home
     int i;  
     int home_dir_len = strlen(home_dir);
-    int pwd_len = strlen(pwd);
-    for(i=0; i<home_dir_len; ++i) if(home_dir[i]!=pwd[i]) break;
+    int cur_dir_len = strlen(cur_dir);
+    for(i=0; i<home_dir_len; ++i) if(home_dir[i]!=cur_dir[i]) break;
 
     // Print command prompt
     printf(BOLD GRN "%s@%s" RESET, user, sysname);
     printf(BOLD WHT ":" RESET);
-    if(i!=home_dir_len) printf(BOLD BLU "%s" RESET, pwd);
-    else printf(BOLD BLU "~%s" RESET, &pwd[i]);
-    printf(BOLD WHT "> \n" RESET);
+    if(i!=home_dir_len) printf(BOLD BLU "%s" RESET, cur_dir);
+    else printf(BOLD CYN "~%s" RESET, &cur_dir[i]);
+    printf(BOLD WHT "> " RESET);
+
+    return;
+}
+
+void pwd() {
+
+    char cur_dir[1000];
+	getcwd(cur_dir, sizeof(cur_dir));
+    printf("%s\n", cur_dir);
+    return;
+    
+}
+
+void execute(char *command) {
+
+    char *token = strtok(command, " \t\n");
+    while(token!=NULL)
+    {
+        if(strcmp(token, "exit")==0) exit(0);
+        else if(strcmp(token, "pwd")==0) pwd();
+        token = strtok(NULL, " \t\n");
+    }
 
     return;
 }
 
 int main() {
 
-    display_prompt();
+    char *token;
+
+    while(1) 
+    {
+        display_prompt();
+
+        char input[2000];
+        // scanf("%[^\n]%*c", input);
+        fgets(input, sizeof(input), stdin);
+
+        token = strtok(input, ";");
+        while(token!=NULL)
+        {
+            // printf("%s\n", token);  
+            execute(token);
+            token = strtok(NULL, ";");
+        }
+    }
 
     return 0;
 }
