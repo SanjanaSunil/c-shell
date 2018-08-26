@@ -13,5 +13,14 @@ void pwd() {
     printf("%s\n", cur_dir);
     
     return;
-    
+}
+
+void cd(char *dest) {
+
+    printf("dbug %s\n", dest);
+
+    if(dest==NULL) printf("go to home");
+    chdir(dest);
+
+    return;
 }
