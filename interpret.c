@@ -17,7 +17,7 @@ void execute(char **command) {
     else if(strcmp(token, "pwd")==0) pwd();
     else if(strcmp(token, "cd")==0) 
     {
-        token = strtok(NULL, " \t");
+        token = strtok(NULL, " \t\n\r");
         cd(token);
     }
 
