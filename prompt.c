@@ -10,7 +10,7 @@
 
 const char *USER;
 const char *SYSNAME;
-const char *HOME;
+char HOME[1000];
 
 void init() {
 
@@ -25,7 +25,8 @@ void init() {
     SYSNAME = sysinfo.nodename;
 
     // Get home dir
-    HOME = pw->pw_dir;
+	getcwd(HOME, sizeof(HOME));
+    // HOME = pw->pw_dir;
 
     return;
 }
@@ -37,14 +38,15 @@ void display_prompt() {
 	getcwd(cur_dir, sizeof(cur_dir));
 
     // Get current dir in relation to home
-    int i = 0;  
     int home_len = strlen(HOME);
+    int i = 0;
     for(i=0; i<home_len; ++i) if(HOME[i]!=cur_dir[i]) break;
 
     // Print command prompt
     printf(BOLD GRN "%s@%s" RESET, USER, SYSNAME);
     printf(BOLD WHT ":" RESET);
-    if(i!=home_len) printf(BOLD CYN "%s" RESET, cur_dir);
+    // if(i!=home_len) printf(BOLD CYN "%s" RESET, cur_dir);
+    if(i!=home_len) printf(BOLD CYN "home/%s" RESET, USER);
     else printf(BOLD CYN "~%s" RESET, &cur_dir[i]);
     printf(BOLD WHT "> " RESET);
 
