@@ -63,15 +63,11 @@ void pwd() {
     
 }
 
-void execute(char *command) {
+void execute(char **command) {
 
-    char *token = strtok(command, " \t\n");
-    while(token!=NULL)
-    {
-        if(strcmp(token, "exit")==0) exit(0);
-        else if(strcmp(token, "pwd")==0) pwd();
-        token = strtok(NULL, " \t\n");
-    }
+    char *token = strtok(*command, " \t\n");
+    if(strcmp(token, "exit")==0) exit(0);
+    else if(strcmp(token, "pwd")==0) pwd();
 
     return;
 }
@@ -79,6 +75,8 @@ void execute(char *command) {
 int main() {
 
     char *token;
+    char *commands[2000];
+    int i, j, count;
 
     while(1) 
     {
@@ -89,12 +87,16 @@ int main() {
         fgets(input, sizeof(input), stdin);
 
         token = strtok(input, ";");
+        count = 0;
         while(token!=NULL)
         {
-            // printf("%s\n", token);  
-            execute(token);
+            //printf("%s\n", token); 
+            // execute(&token);
+            commands[count++] = token; 
             token = strtok(NULL, ";");
         }
+
+        for(i=0; i<count; ++i) execute(&commands[i]);
     }
 
     return 0;
