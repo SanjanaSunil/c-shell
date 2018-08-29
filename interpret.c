@@ -30,12 +30,13 @@ void execute(char *command) {
     char *token = strtok(command, " \t\n\r");
     if(token==NULL) return;
 
+    if(strcmp(token, "exit")==0) exit(0);
+
     pid_t pid; 
-    pid = fork();
+    if(background) pid = fork();
     if(pid==0)
     {
-        if(strcmp(token, "exit")==0) exit(0);
-        else if(strcmp(token, "pwd")==0) pwd();
+        if(strcmp(token, "pwd")==0) pwd();
         else if(strcmp(token, "cd")==0) cd(token);
         else if(strcmp(token, "echo")==0) echo(token);
         else if(strcmp(token, "ls")==0) ls(token);
