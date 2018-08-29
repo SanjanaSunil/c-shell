@@ -31,3 +31,17 @@ void fg(char *token) {
 
     return;
 }
+
+void bg(char *token) {
+
+    char *command[2000];
+    int count = 0;
+
+    while(token!=NULL)
+    {
+        command[count++] = token;
+        token = strtok(NULL, " \t\n\r");
+    }
+
+    return;
+}
