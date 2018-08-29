@@ -32,7 +32,7 @@ void execute(char *command) {
 
     if(strcmp(token, "exit")==0) exit(0);
 
-    pid_t pid; 
+    pid_t pid = 0; 
     if(background) pid = fork();
     if(pid==0)
     {
