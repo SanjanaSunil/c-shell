@@ -73,8 +73,6 @@ void ls(char *token) {
 
     int i, j, k;
 
-    // CHECK PRESENT DIRECTORY
-
     while(token!=NULL)
     {
         if(strcmp(token, "-a")==0) a_flag = 1;
@@ -94,7 +92,7 @@ void ls(char *token) {
 
         // Check for home
         if(dirs[0]==NULL)
-        {
+        {   
             char present_dir[1000];
 	        getcwd(present_dir, sizeof(present_dir));
             strcpy(dir, present_dir);
@@ -129,12 +127,14 @@ void ls(char *token) {
                         if((files->d_name[0])!='.') 
                         {
                             if(S_ISDIR(filestat.st_mode)) printf(BOLD BLU "%s  " RESET, files->d_name);
+                            else if(filestat.st_mode & S_IXUSR) printf(BOLD GRN "%s  " RESET, files->d_name);
                             else printf("%s  ", files->d_name);
                         }
                     }
                     else 
                     {
                         if(S_ISDIR(filestat.st_mode)) printf(BOLD BLU "%s  " RESET, files->d_name);
+                        else if(filestat.st_mode & S_IXUSR) printf(BOLD GRN "%s  " RESET, files->d_name);
                         else printf("%s  ", files->d_name);
                     }
                 }
@@ -181,6 +181,7 @@ void ls(char *token) {
                             printf("%s\t%s\t", usr->pw_name, grp->gr_name);
                             printf("%ld\t%s\t", filestat.st_size, date);
                             if(S_ISDIR(filestat.st_mode)) printf(BOLD BLU "%s\n" RESET, files->d_name);
+                            else if(filestat.st_mode & S_IXUSR) printf(BOLD GRN "%s\n" RESET, files->d_name);
                             else printf("%s\n", files->d_name);
                         }
                     }
@@ -190,6 +191,7 @@ void ls(char *token) {
                         printf("%s\t%s\t", usr->pw_name, grp->gr_name);
                         printf("%ld\t%s\t", filestat.st_size, date);
                         if(S_ISDIR(filestat.st_mode)) printf(BOLD BLU "%s\n" RESET, files->d_name);
+                        else if(filestat.st_mode & S_IXUSR) printf(BOLD GRN "%s\n" RESET, files->d_name);
                         else printf("%s\n", files->d_name);
                     }
                     
