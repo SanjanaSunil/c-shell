@@ -6,11 +6,27 @@
 #include <sys/utsname.h>
 #include <sys/types.h>
 
-#include "builtin.h"
+#include "builtin_commands.h"
+#include "system_commands.h"
 
-void execute(char **command) {
+void execute(char *command) {
 
-    char *token = strtok(*command, " \t\n\r");
+    // Check for bg process
+    int i = 0;
+    int background = 0;
+    for(i=strlen(command)-1;i>=0;--i)
+    {
+        if(command[i]==' ') continue;
+        else if(command[i]=='&')
+        {
+            background = 1;
+            command[i] = '\0';
+            break;
+        }
+        else break;
+    }
+
+    char *token = strtok(command, " \t\n\r");
     if(token==NULL) return;
 
     if(strcmp(token, "exit")==0) exit(0);
@@ -18,7 +34,7 @@ void execute(char **command) {
     else if(strcmp(token, "cd")==0) cd(token);
     else if(strcmp(token, "echo")==0) echo(token);
     else if(strcmp(token, "ls")==0) ls(token);
-    else printf("%s: command not found\n", token);
+    else fg(token);
 
     return;
 }
@@ -44,7 +60,7 @@ void interpret_commands() {
     }
 
     // Execute each command
-    for(i=0; i<count; ++i) execute(&commands[i]);
+    for(i=0; i<count; ++i) execute(commands[i]);
 
     return;
 }

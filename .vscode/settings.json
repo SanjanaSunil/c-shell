@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "locale.h": "c"
+        "locale.h": "c",
+        "builtin_commands.h": "c"
     }
 }

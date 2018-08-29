@@ -74,7 +74,7 @@ void ls(char *token) {
     int i, j, k;
 
     while(token!=NULL)
-    {
+    {  
         if(strcmp(token, "-a")==0) a_flag = 1;
         else if(strcmp(token, "-l")==0) l_flag = 1;
         else if(strcmp(token, "-la")==0 || strcmp(token, "-al")==0) {a_flag = 1; l_flag = 1;}
@@ -120,7 +120,7 @@ void ls(char *token) {
             {
                 sprintf(buf, "%s/%s", dir, files->d_name);
                 stat(buf, &filestat);
-                if(!l_flag) 
+                if(!l_flag)
                 {
                     if(!a_flag)
                     {
