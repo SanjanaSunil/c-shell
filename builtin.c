@@ -85,13 +85,21 @@ void ls(char *token) {
         token = strtok(NULL, " \t\n\r");
     }
 
+    if(count==0) dirs[count++] = token;
+
     // Iterating through the directories on which we do ls
     for(i=0; i<count; ++i) 
     {
         char dir[1000];
 
         // Check for home
-        if(dirs[i]==NULL || (strcmp(dirs[i],"~")==0) || (strcmp(dirs[i],"~/")==0)) strcpy(dir, HOME);
+        if(dirs[0]==NULL)
+        {
+            char present_dir[1000];
+	        getcwd(present_dir, sizeof(present_dir));
+            strcpy(dir, present_dir);
+        }
+        else if((strcmp(dirs[i],"~")==0) || (strcmp(dirs[i],"~/")==0)) strcpy(dir, HOME);
         else if((dirs[i][0]=='~') && (dirs[i][1]=='/')) 
         {
             strcpy(dir, HOME);
@@ -177,6 +185,8 @@ void ls(char *token) {
 
             }
             closedir(cur_dir);
+
+            if(dirs[0]==NULL) return;
         }
         else
         {
