@@ -57,6 +57,11 @@ void ls(char *token) {
     int a_flag = 0;
     int l_flag = 0;
 
+    char *dirs[2000];
+    int count = 0;
+
+    int i, j, k;
+
     // Check if token == NULL
 
     while(token!=NULL)
@@ -64,10 +69,12 @@ void ls(char *token) {
         if(strcmp(token, "-a")==0) a_flag = 1;
         else if(strcmp(token, "-l")==0) l_flag = 1;
         else if(strcmp(token, "-la")==0 || strcmp(token, "-al")==0) {a_flag = 1; l_flag = 1;}
+        else dirs[count++] = token;
 
-        printf("%s\n", token);
         token = strtok(NULL, " \t\n\r");
     }
+
+    for(i=0; i<count; ++i) printf("dbug %s\n", dirs[i]);
 
     return;
 }
