@@ -161,7 +161,7 @@ void ls(char *token) {
                     usr = getpwuid(usr_id);
 
                     char date[256];
-                    strftime(date, 20, "%b %d %X", localtime(&(filestat.st_ctime)));
+                    strftime(date, 20, "%b %d %H:%M", localtime(&(filestat.st_ctime)));
 
                     if(!a_flag)
                     {
