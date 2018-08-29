@@ -17,7 +17,7 @@ void execute(char **command) {
     else if(strcmp(token, "pwd")==0) pwd();
     else if(strcmp(token, "cd")==0) cd(token);
     else if(strcmp(token, "echo")==0) echo(token);
-    // else if(strcmp(token, "ls")==0) ls(token);
+    else if(strcmp(token, "ls")==0) ls(token);
     else printf("%s: command not found\n", token);
 
     return;

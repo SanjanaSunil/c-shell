@@ -5,8 +5,9 @@
 #include <pwd.h>
 #include <sys/utsname.h>
 #include <sys/types.h>
+#include <dirent.h>
 
-#include "prompt.h"
+#include "system_details.h"
 
 void pwd() {
 
@@ -46,5 +47,10 @@ void echo(char *token) {
 
     printf("\n");
     
+    return;
+}
+
+void ls(char *token) {
+
     return;
 }
