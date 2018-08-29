@@ -15,7 +15,7 @@
 #include <time.h>
 
 #include "system_details.h"
-
+#include "styles.h"
 
 void pwd() {
 
@@ -114,6 +114,8 @@ void ls(char *token) {
 
         if(cur_dir)
         {
+            if(i>0) printf("\n");
+
             char buf[512];  
 
             while((files = readdir(cur_dir)) != NULL)
@@ -124,9 +126,17 @@ void ls(char *token) {
                 {
                     if(!a_flag)
                     {
-                        if((files->d_name[0])!='.') printf("%s\n", files->d_name);
+                        if((files->d_name[0])!='.') 
+                        {
+                            if(S_ISDIR(filestat.st_mode)) printf(BOLD BLU "%s  " RESET, files->d_name);
+                            else printf("%s  ", files->d_name);
+                        }
                     }
-                    else printf("%s\n", files->d_name);
+                    else 
+                    {
+                        if(S_ISDIR(filestat.st_mode)) printf(BOLD BLU "%s  " RESET, files->d_name);
+                        else printf("%s  ", files->d_name);
+                    }
                 }
                 else 
                 {
@@ -170,7 +180,8 @@ void ls(char *token) {
                             printf("%c%c%c%c%c%c%c%c%c%c\t", filetype, ur, uw, ux, gr, gw, gx, or, ow, ox);
                             printf("%s\t%s\t", usr->pw_name, grp->gr_name);
                             printf("%ld\t%s\t", filestat.st_size, date);
-                            printf("%s\n", files->d_name);
+                            if(S_ISDIR(filestat.st_mode)) printf(BOLD BLU "%s\n" RESET, files->d_name);
+                            else printf("%s\n", files->d_name);
                         }
                     }
                     else 
@@ -178,12 +189,16 @@ void ls(char *token) {
                         printf("%c%c%c%c%c%c%c%c%c%c\t", filetype, ur, uw, ux, gr, gw, gx, or, ow, ox);
                         printf("%s\t%s\t", usr->pw_name, grp->gr_name);
                         printf("%ld\t%s\t", filestat.st_size, date);
-                        printf("%s\n", files->d_name);
+                        if(S_ISDIR(filestat.st_mode)) printf(BOLD BLU "%s\n" RESET, files->d_name);
+                        else printf("%s\n", files->d_name);
                     }
                     
                 }
 
             }
+
+            if(!l_flag) printf("\n");
+
             closedir(cur_dir);
 
             if(dirs[0]==NULL) return;
