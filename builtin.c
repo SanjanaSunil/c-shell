@@ -52,5 +52,22 @@ void echo(char *token) {
 
 void ls(char *token) {
 
+    token = strtok(NULL, " \t\n\r");
+
+    int a_flag = 0;
+    int l_flag = 0;
+
+    // Check if token == NULL
+
+    while(token!=NULL)
+    {
+        if(strcmp(token, "-a")==0) a_flag = 1;
+        else if(strcmp(token, "-l")==0) l_flag = 1;
+        else if(strcmp(token, "-la")==0 || strcmp(token, "-al")==0) {a_flag = 1; l_flag = 1;}
+
+        printf("%s\n", token);
+        token = strtok(NULL, " \t\n\r");
+    }
+
     return;
 }
