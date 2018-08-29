@@ -11,6 +11,8 @@
 #include <sys/stat.h>    
 #include <dirent.h>
 #include <errno.h>
+#include <grp.h>
+#include <time.h>
 
 #include "system_details.h"
 
@@ -143,12 +145,33 @@ void ls(char *token) {
                     if(mode & S_IWOTH) ow = 'w';
                     if(mode & S_IXOTH) ox = 'x';
 
+                    struct group *grp;
+                    struct passwd *usr;
+                    uid_t usr_id = filestat.st_uid; 
+                    gid_t grp_id = filestat.st_gid;
+                    grp = getgrgid(grp_id);
+                    usr = getpwuid(usr_id);
+
+                    char date[256];
+                    strftime(date, 20, "%b %d %X", localtime(&(filestat.st_ctime)));
+
                     if(!a_flag)
                     {
                         if((files->d_name[0])!='.') 
-                            printf("%c%c%c%c%c%c%c%c%c%c\t%s\n", filetype, ur, uw, ux, gr, gw, gx, or, ow, ox, files->d_name);
+                        {
+                            printf("%c%c%c%c%c%c%c%c%c%c\t", filetype, ur, uw, ux, gr, gw, gx, or, ow, ox);
+                            printf("%s\t%s\t", usr->pw_name, grp->gr_name);
+                            printf("%ld\t%s\t", filestat.st_size, date);
+                            printf("%s\n", files->d_name);
+                        }
                     }
-                    else printf("%c%c%c%c%c%c%c%c%c%c\t%s\n", filetype, ur, uw, ux, gr, gw, gx, or, ow, ox, files->d_name);
+                    else 
+                    {
+                        printf("%c%c%c%c%c%c%c%c%c%c\t", filetype, ur, uw, ux, gr, gw, gx, or, ow, ox);
+                        printf("%s\t%s\t", usr->pw_name, grp->gr_name);
+                        printf("%ld\t%s\t", filestat.st_size, date);
+                        printf("%s\n", files->d_name);
+                    }
                     
                 }
 
