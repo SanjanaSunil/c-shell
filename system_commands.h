@@ -1,2 +1,2 @@
 void fg(char *);
-void bg(char *);
+void bg(char *, int);
