@@ -12,14 +12,8 @@ void pwd() {
 
     char cur_dir[1000];
 	getcwd(cur_dir, sizeof(cur_dir));
+    printf("%s\n", cur_dir);
 
-    int home_len = strlen(HOME);
-    int i = 0;
-    for(i=0; i<home_len; ++i) if(HOME[i]!=cur_dir[i]) break;
-
-    if(i!=home_len) printf("home/%s\n", USER);
-    else printf("home/%s%s\n", USER, &cur_dir[i]);
-    
     return;
 }
 

@@ -46,7 +46,7 @@ void display_prompt() {
     printf(BOLD GRN "%s@%s" RESET, USER, SYSNAME);
     printf(BOLD WHT ":" RESET);
     // if(i!=home_len) printf(BOLD CYN "%s" RESET, cur_dir);
-    if(i!=home_len) printf(BOLD CYN "home/%s" RESET, USER);
+    if(i!=home_len) printf(BOLD CYN "%s" RESET, cur_dir);
     else printf(BOLD CYN "~%s" RESET, &cur_dir[i]);
     printf(BOLD WHT "> " RESET);
 
