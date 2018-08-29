@@ -5,6 +5,7 @@
 #include <pwd.h>
 #include <sys/utsname.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 
 #include "builtin_commands.h"
 #include "system_commands.h"
@@ -29,12 +30,18 @@ void execute(char *command) {
     char *token = strtok(command, " \t\n\r");
     if(token==NULL) return;
 
-    if(strcmp(token, "exit")==0) exit(0);
-    else if(strcmp(token, "pwd")==0) pwd();
-    else if(strcmp(token, "cd")==0) cd(token);
-    else if(strcmp(token, "echo")==0) echo(token);
-    else if(strcmp(token, "ls")==0) ls(token);
-    else fg(token);
+    pid_t pid; 
+    pid = fork();
+    if(pid==0)
+    {
+        if(strcmp(token, "exit")==0) exit(0);
+        else if(strcmp(token, "pwd")==0) pwd();
+        else if(strcmp(token, "cd")==0) cd(token);
+        else if(strcmp(token, "echo")==0) echo(token);
+        else if(strcmp(token, "ls")==0) ls(token);
+        else fg(token);
+    }
+    else if(!background) wait(NULL);
 
     return;
 }
@@ -46,10 +53,8 @@ void interpret_commands() {
     char input[2000];
     int i, j, count;
 
-    // scanf("%[^\n]%*c", input);
     fgets(input, sizeof(input), stdin);
-        
-    // Separate out the commands with ; as delimiter
+    
     token = strtok(input, ";\n");
     count = 0;
 
@@ -59,7 +64,6 @@ void interpret_commands() {
         token = strtok(NULL, ";");
     }
 
-    // Execute each command
     for(i=0; i<count; ++i) execute(commands[i]);
 
     return;
