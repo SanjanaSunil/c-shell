@@ -20,6 +20,7 @@ void execute(char **command) {
         token = strtok(NULL, " \t\n\r");
         cd(token);
     }
+    else if(strcmp(token, "echo")==0) printf("echoing\n");
 
     return;
 }
@@ -33,7 +34,7 @@ void interpret_commands() {
 
     // scanf("%[^\n]%*c", input);
     fgets(input, sizeof(input), stdin);
-
+        
     // Separate out the commands with ; as delimiter
     token = strtok(input, ";\n");
     count = 0;
