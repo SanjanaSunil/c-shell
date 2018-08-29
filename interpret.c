@@ -15,12 +15,8 @@ void execute(char **command) {
 
     if(strcmp(token, "exit")==0) exit(0);
     else if(strcmp(token, "pwd")==0) pwd();
-    else if(strcmp(token, "cd")==0) 
-    {
-        token = strtok(NULL, " \t\n\r");
-        cd(token);
-    }
-    else if(strcmp(token, "echo")==0) printf("echoing\n");
+    else if(strcmp(token, "cd")==0) cd(token);
+    else if(strcmp(token, "echo")==0) echo(token);
 
     return;
 }

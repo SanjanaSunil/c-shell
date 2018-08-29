@@ -25,6 +25,8 @@ void pwd() {
 
 void cd(char *dest) {
 
+    dest = strtok(NULL, " \t\n\r");
+
     if(dest==NULL || (strcmp(dest,"~")==0) || (strcmp(dest,"~/")==0)) chdir(HOME);
     else if((dest[0]=='~') && (dest[1]=='/')) 
     {
@@ -34,6 +36,21 @@ void cd(char *dest) {
         if(chdir(destination)<0) perror("Error");
     }
     else if(chdir(dest)<0) perror("Error");
+    
+    return;
+}
+
+void echo(char *token) {
+
+    token = strtok(NULL, " \t\n\r");
+
+    while(token!=NULL)
+    {
+        printf("%s ", token); 
+        token = strtok(NULL, " \t\n\r");
+    }
+
+    printf("\n");
     
     return;
 }
