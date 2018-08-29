@@ -19,9 +19,10 @@ void fg(char *token) {
     pid_t child_pid;
     int child_status;
     child_pid = fork();
-    if(child_pid == 0) 
+    if(child_pid==0) 
     {
         execvp(command[0], command);
+        fprintf(stderr, "%s: command not found\n", command[0]);
     }
     else
     {
