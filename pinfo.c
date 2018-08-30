@@ -8,90 +8,67 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 
-// This function stores the pid into a string
-void ConvertPID(char stringpid[],int pid)
-{
-    int temp = pid;
-    int count = 0;
-    while(temp != 0)
-    {
-      count++;
-      temp = temp/10;
-    }
-    temp = pid;
-    stringpid[count] = 0;
-    while(temp != 0)
-    {
-      stringpid[count-1] = temp%10 + '0';
-      temp = temp/10;
-      count--;
-    }
-
-    return;
-}
-
 void pinfo(char *token)
 {
-      token = strtok(NULL," \n\r\t");
-      int pid;
-      char stringpid[1000];
-      if(token == NULL)
-      {
+    token = strtok(NULL," \n\r\t");
+
+    int pid;
+    char stringpid[1000];
+
+    if(token==NULL)
+    {
         pid = getpid();
-        ConvertPID(stringpid,pid);
-        printf("DBUG %s\n", stringpid);
-      }
-      else
-      {
-        strcpy(stringpid,token);
-      }
-      int source,link;
-      char s[1000];
-      char p[1000];
-      char c[1000000];
-      strcpy(s,"/proc/");
-      strcpy(p,"/proc/");
-      char ExecutePath[1000];
-      strcat(s,stringpid);
-      strcat(s,"/stat");
-      strcat(p,stringpid);
-      strcat(p,"/exe");
-      source  = open(s,O_RDONLY);
-      link = readlink(p,ExecutePath,1000);
-      if(source < 0 || link < 0)
-      {
-        fprintf(stderr,"Invalid process id \n");
-        close(source);
-        close(link);
+        sprintf(stringpid, "%d", pid);
+    }
+    else strcpy(stringpid, token);
+
+    // Get process info
+    char proc_stat[1000];
+    snprintf(proc_stat, sizeof(proc_stat), "%s%s%s", "/proc/", stringpid, "/stat");
+
+    int stat_fd = open(proc_stat, O_RDONLY);
+    if(stat_fd<0)
+    {
+        fprintf(stderr, "Invalid process ID\n");
         return;
-      }
-      ExecutePath[link] = 0;
-      int byte = read(source,c,1000000);
-      int count = 1;
-      char Id[100],Status[100],VMemory[100],*content;
-      content = strtok(c," \n\r\t");
-      while(content != NULL)
-      {
-        if(count == 1)
-        {
-          strcpy(Id,content);
-        }
-        if(count == 3)
-        {
-          strcpy(Status,content);
-        }
-        if(count == 25)
-        {
-          strcpy(VMemory,content);
-        }
+    }
+
+    char process_info[100000];
+    size_t read_stat = read(stat_fd, process_info, sizeof(process_info));
+    if(read_stat<0)
+    {
+        fprintf(stderr, "Invalid process ID\n");
+        return;
+    }
+
+    int count = 0;
+    char *info = strtok(process_info, " \n\r\t");
+    while(info!=NULL)
+    {
+        if(count==0) printf("pid -- %s\n", info);
+        if(count==2) printf("Process Status -- %s\n", info);
+        if(count==22) printf("%s {Virtual Memory}\n", info);
+
         count++;
-        content = strtok(NULL," \n\r\t");
-      }
-      printf("pid -- %s\n",Id);
-      printf("Process Status -- %s\n",Status);
-      printf("Virtual Memory -- %s\n",VMemory);
-      printf("Executable Path -- %s\n",ExecutePath);
-      close(source);
-      close(link);
-      return;
+        info = strtok(NULL, " \n\r\t");
+    }
+
+    close(stat_fd);
+
+    // Get executable path
+    char proc_exec[1000];  
+    snprintf(proc_exec, sizeof(proc_exec), "%s%s%s", "/proc/", stringpid, "/exe");
+
+    char exec_path[1000];
+    ssize_t exec_path_len = readlink(proc_exec, exec_path, sizeof(exec_path)-1);
+    if(exec_path_len<0)
+    {
+        fprintf(stderr, "Invalid process ID\n");
+        return;
+    }
+    exec_path[exec_path_len] = '\0';
+    
+    printf("Excutable path -- %s\n", exec_path);
+
+    return;
 }
