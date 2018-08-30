@@ -1,1 +1,1 @@
-void fg(char *);
+void system_command(char *);

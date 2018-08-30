@@ -43,7 +43,7 @@ void execute(char *command) {
         else if(strcmp(token, "echo")==0) echo(token);
         else if(strcmp(token, "ls")==0) ls(token);
         else if(strcmp(token, "pinfo")==0) pinfo(token);
-        else fg(token);
+        else system_command(token);
     }
     else if(!background) wait(NULL);
 

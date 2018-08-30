@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-void fg(char *token) {
+void system_command(char *token) {
 
     char *command[2000];
     int count = 0;
