@@ -6,9 +6,11 @@
 #include <sys/utsname.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 
 #include "builtin_commands.h"
 #include "system_commands.h"
+#include "pinfo.h"
 
 void execute(char *command) {
 
@@ -40,6 +42,7 @@ void execute(char *command) {
         else if(strcmp(token, "cd")==0) cd(token);
         else if(strcmp(token, "echo")==0) echo(token);
         else if(strcmp(token, "ls")==0) ls(token);
+        else if(strcmp(token, "pinfo")==0) pinfo(token);
         else fg(token);
     }
     else if(!background) wait(NULL);
