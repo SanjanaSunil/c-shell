@@ -14,7 +14,7 @@
 #include <grp.h>
 #include <time.h>
 
-#include "system_details.h"
+#include "config.h"
 #include "styles.h"
 
 void pwd() {
