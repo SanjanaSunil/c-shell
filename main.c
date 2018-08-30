@@ -3,6 +3,8 @@
 
 #include "prompt.h"
 #include "interpret.h"
+#include "config.h"
+#include "bg.h"
 
 int main() {
 
@@ -10,6 +12,7 @@ int main() {
 
     while(1) 
     {
+        check_process();
         display_prompt();
         interpret_commands();
     }

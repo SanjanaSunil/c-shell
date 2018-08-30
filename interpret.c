@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-#include <signal.h>
+
 #include "builtin_commands.h"
 #include "system_commands.h"
 #include "pinfo.h"
@@ -33,10 +33,10 @@ void execute(char *command) {
     char *token = strtok(command, " \t\n\r");
     if(token==NULL) return;
 
-    if(strcmp(token, "exit")==0) exit(0);
+    if(strcmp(token, "exit")==0) _exit(0);
 
-    pid_t pid; 
-    pid = fork();
+    int status;
+    pid_t pid = fork();
     if(pid==0)
     {
         if(strcmp(token, "pwd")==0) pwd();
@@ -45,10 +45,13 @@ void execute(char *command) {
         else if(strcmp(token, "ls")==0) ls(token);
         else if(strcmp(token, "pinfo")==0) pinfo(token);
         else system_command(token);
+
+        _exit(0);
     }
     else 
     {
-        if(!background) wait(NULL);
+        if(!background) while(wait(&status)!=pid);
+        else add_bg(pid);
     }
 
     return;
