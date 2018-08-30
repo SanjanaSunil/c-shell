@@ -16,17 +16,7 @@ void system_command(char *token) {
         token = strtok(NULL, " \t\n\r");
     }
 
-    pid_t pid;
-    pid = fork();
-    if(pid==0) 
-    {
-        execvp(command[0], command);
-        fprintf(stderr, "%s: command not found\n", command[0]);
-    }
-    else
-    {
-        wait(NULL);
-    }
+    if(execvp(command[0], command)<0) fprintf(stderr, "%s: command not found\n", command[0]);
 
     return;
 }

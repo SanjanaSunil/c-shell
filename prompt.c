@@ -12,6 +12,8 @@ const char *USER;
 const char *SYSNAME;
 char HOME[1000];
 
+int bg_procs[1024];
+
 void init() {
 
     // Get username
@@ -28,6 +30,9 @@ void init() {
 	getcwd(HOME, sizeof(HOME));
     // HOME = pw->pw_dir;
 
+    int i = 0;
+    for(i=0; i<1024; ++i) bg_procs[i] = -1;
+    
     return;
 }
 
