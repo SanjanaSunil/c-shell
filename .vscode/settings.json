@@ -3,6 +3,7 @@
         "locale.h": "c",
         "builtin_commands.h": "c",
         "wait.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "pwd.h": "c"
     }
 }

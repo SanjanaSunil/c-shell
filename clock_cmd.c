@@ -10,7 +10,15 @@
 #include <time.h>
 #include <signal.h>
 
+volatile sig_atomic_t stop;
+
+void handle_sigint(int signum) { stop = 1; }
+
 void dynamic_clock(char *token) {
+
+    stop = 0;
+
+    signal(SIGINT, handle_sigint);
 
     token = strtok(NULL, " \n\r\t");
     if(token==NULL || strcmp(token, "-t")!=0) 
@@ -37,7 +45,7 @@ void dynamic_clock(char *token) {
         return;
     }
 
-    while(1)
+    while(!stop)
     {
         int fd = open("/proc/driver/rtc", O_RDONLY);
         if(fd<0)
