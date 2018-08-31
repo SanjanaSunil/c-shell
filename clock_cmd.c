@@ -54,7 +54,11 @@ void dynamic_clock(char *token) {
         rtc_time = strtok(NULL, " \t\r\n");
         rtc_time = strtok(NULL, " \t\r\n");
 
-        printf("%s\n", rtc_time);
+        char *rtc_date = strtok(NULL, " \t\r\n");
+        rtc_date = strtok(NULL, " \t\r\n");
+        rtc_date = strtok(NULL, " \t\r\n");
+
+        printf("%s\t%s\n", rtc_date, rtc_time);
 
         sleep(interval);
 
