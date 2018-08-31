@@ -163,15 +163,13 @@ void ls(char *token) {
                     if(mode & S_IWOTH) ow = 'w';
                     if(mode & S_IXOTH) ox = 'x';
 
-                    struct group *grp;
-                    struct passwd *usr;
                     uid_t usr_id = filestat.st_uid; 
                     gid_t grp_id = filestat.st_gid;
-                    grp = getgrgid(grp_id);
-                    usr = getpwuid(usr_id);
+                    struct group *grp = getgrgid(grp_id);
+                    struct passwd *usr = getpwuid(usr_id);
 
                     char date[256];
-                    strftime(date, 20, "%b %d %H:%M", localtime(&(filestat.st_ctime)));
+                    strftime(date, 20, "%b %d %H:%M", localtime(&(filestat.st_mtime)));
 
                     if(!a_flag)
                     {

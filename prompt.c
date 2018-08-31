@@ -47,6 +47,10 @@ void display_prompt() {
     int i = 0;
     for(i=0; i<home_len; ++i) if(HOME[i]!=cur_dir[i]) break;
 
+    struct utsname sysinfo;
+    uname(&sysinfo);
+    SYSNAME = sysinfo.nodename;
+
     // Print command prompt
     printf(BOLD GRN "%s@%s" RESET, USER, SYSNAME);
     printf(BOLD WHT ":" RESET);

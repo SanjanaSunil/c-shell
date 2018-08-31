@@ -12,6 +12,7 @@
 #include "system_commands.h"
 #include "pinfo.h"
 #include "bg.h"
+#include "config.h"
 
 void execute(char *command) {
 
@@ -35,18 +36,19 @@ void execute(char *command) {
 
     if(strcmp(token, "exit")==0) _exit(0);
 
+    if(strcmp(token, "pwd")==0) pwd();
+    else if(strcmp(token, "cd")==0) cd(token);
+    else if(strcmp(token, "echo")==0) echo(token);
+    else if(strcmp(token, "ls")==0) ls(token);
+    else if(strcmp(token, "pinfo")==0) pinfo(token);
+
+    if(!strcmp(token, "cd") || !strcmp(token, "pwd") || !strcmp(token, "echo") || !strcmp(token, "ls") || !strcmp(token, "pinfo")) return;
+
     int status;
     pid_t pid = fork();
     if(pid==0)
     {
-        if(strcmp(token, "pwd")==0) pwd();
-        else if(strcmp(token, "cd")==0) cd(token);
-        else if(strcmp(token, "echo")==0) echo(token);
-        else if(strcmp(token, "ls")==0) ls(token);
-        else if(strcmp(token, "pinfo")==0) pinfo(token);
-        else system_command(token);
-
-        _exit(0);
+        system_command(token);
     }
     else 
     {

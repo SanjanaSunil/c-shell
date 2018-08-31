@@ -1,5 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <pwd.h>
+#include <sys/utsname.h>
+#include <sys/types.h>
 
 #include "prompt.h"
 #include "interpret.h"
