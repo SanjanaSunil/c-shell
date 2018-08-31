@@ -8,6 +8,8 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 
+#include "config.h"
+
 void pinfo(char *token)
 {
     token = strtok(NULL," \n\r\t");
@@ -67,8 +69,14 @@ void pinfo(char *token)
         return;
     }
     exec_path[exec_path_len] = '\0';
+
+    int home_len = strlen(HOME);
+    int i = 0;
+    for(i=0; i<home_len; ++i) if(HOME[i]!=exec_path[i]) break;
     
-    printf("Excutable path -- %s\n", exec_path);
+    printf("Excutable path -- ");
+    if(i!=home_len) printf("%s\n", exec_path);
+    else printf("~%s\n", &exec_path[i]);
 
     return;
 }
