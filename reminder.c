@@ -20,8 +20,9 @@ void remindme(char *token) {
         return;
     }
 
-    char **junk;
-    int seconds = strtol(token, junk, 10);
+    char *endchar = token + strlen(token)-1;
+    char **endptr = &endchar;
+    int seconds = strtol(token, endptr, 10);
     // int seconds = atoi(token);
 
     token = strtok(NULL, " \t\n\r");
