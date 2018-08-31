@@ -7,12 +7,14 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <time.h>
 
 #include "builtin_commands.h"
 #include "system_commands.h"
 #include "pinfo.h"
 #include "bg.h"
 #include "config.h"
+#include "reminder.h"
 
 void execute(char *command) {
 
@@ -35,8 +37,7 @@ void execute(char *command) {
     if(token==NULL) return;
 
     if(strcmp(token, "exit")==0) _exit(0);
-
-    if(strcmp(token, "pwd")==0) pwd();
+    else if(strcmp(token, "pwd")==0) pwd();
     else if(strcmp(token, "cd")==0) cd(token);
     else if(strcmp(token, "echo")==0) echo(token);
     else if(strcmp(token, "ls")==0) ls(token);
@@ -44,11 +45,14 @@ void execute(char *command) {
 
     if(!strcmp(token, "cd") || !strcmp(token, "pwd") || !strcmp(token, "echo") || !strcmp(token, "ls") || !strcmp(token, "pinfo")) return;
 
+    if(strcmp(token, "remindme")==0) background = 1;
+    
     int status;
     pid_t pid = fork();
     if(pid==0)
     {
-        system_command(token);
+        if(strcmp(token, "remindme")==0) remindme(token);
+        else system_command(token);
     }
     else 
     {
