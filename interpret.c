@@ -15,6 +15,7 @@
 #include "bg.h"
 #include "config.h"
 #include "reminder.h"
+#include "clock_cmd.h"
 
 void execute(char *command) {
 
@@ -42,8 +43,9 @@ void execute(char *command) {
     else if(strcmp(token, "echo")==0) echo(token);
     else if(strcmp(token, "ls")==0) ls(token);
     else if(strcmp(token, "pinfo")==0) pinfo(token);
+    else if(strcmp(token, "clock")==0) dynamic_clock(token);
 
-    if(!strcmp(token, "cd") || !strcmp(token, "pwd") || !strcmp(token, "echo") || !strcmp(token, "ls") || !strcmp(token, "pinfo")) return;
+    if(!strcmp(token, "cd") || !strcmp(token, "pwd") || !strcmp(token, "echo") || !strcmp(token, "ls") || !strcmp(token, "pinfo") || !strcmp(token, "clock")) return;
 
     if(strcmp(token, "remindme")==0) background = 1;
 

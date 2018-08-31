@@ -1,18 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <pwd.h>
-#include <sys/utsname.h>
-#include <sys/types.h>
+#include <signal.h>
 
 #include "prompt.h"
 #include "interpret.h"
 #include "config.h"
 #include "bg.h"
 
+// void handle_sigint() { return; }
+
 int main() {
 
     init();
+
+    // signal(SIGINT, handle_sigint);
 
     while(1) 
     {
