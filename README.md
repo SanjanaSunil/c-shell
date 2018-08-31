@@ -7,3 +7,4 @@ Change size of everything
 Change input method
 Escape characters
 ls ../    or    ls .
+Remove "" for remindme and echo

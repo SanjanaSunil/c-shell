@@ -65,7 +65,7 @@ void pinfo(char *token)
     ssize_t exec_path_len = readlink(proc_exec, exec_path, sizeof(exec_path)-1);
     if(exec_path_len<0)
     {
-        fprintf(stderr, "Invalid process ID\n");
+        fprintf(stderr, "No executable link\n");
         return;
     }
     exec_path[exec_path_len] = '\0';
