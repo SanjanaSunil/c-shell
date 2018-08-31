@@ -16,16 +16,18 @@ void remindme(char *token) {
     token = strtok(NULL, " \t\n\r");
     if(token==NULL) 
     {
-        printf("\nUsage: token <seconds> <reminder>\n");
+        printf("\nUsage: remindme [seconds] [message]\n");
         return;
     }
 
-    int seconds = atoi(token);
+    char **junk;
+    int seconds = strtol(token, junk, 10);
+    // int seconds = atoi(token);
 
     token = strtok(NULL, " \t\n\r");
     if(token==NULL) 
     {
-        printf("\nUsage: token <seconds> <reminder>\n");
+        printf("\nUsage: remindme [seconds] [message]\n");
         return;
     }
 

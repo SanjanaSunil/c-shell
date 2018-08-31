@@ -46,18 +46,22 @@ void execute(char *command) {
     if(!strcmp(token, "cd") || !strcmp(token, "pwd") || !strcmp(token, "echo") || !strcmp(token, "ls") || !strcmp(token, "pinfo")) return;
 
     if(strcmp(token, "remindme")==0) background = 1;
-    
+
     int status;
     pid_t pid = fork();
     if(pid==0)
     {
-        if(strcmp(token, "remindme")==0) remindme(token);
+        if(strcmp(token, "remindme")==0) 
+        {
+            remindme(token);
+            _exit(0);
+        }
         else system_command(token);
     }
     else 
     {
         if(!background) while(wait(&status)!=pid);
-        else add_bg(pid);
+        else if(strcmp(token, "remindme")!=0) add_bg(pid);
     }
 
     return;
