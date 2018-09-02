@@ -16,7 +16,11 @@ void system_command(char *token) {
         token = strtok(NULL, " \t\n\r");
     }
 
-    if(execvp(command[0], command)<0) fprintf(stderr, "%s: command not found\n", command[0]);
+    if(execvp(command[0], command)<0) 
+    {
+        fprintf(stderr, "%s: command not found\n", command[0]);
+        _exit(0);
+    }
 
     return;
 }

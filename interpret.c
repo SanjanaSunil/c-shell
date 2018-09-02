@@ -68,11 +68,15 @@ void interpret_commands() {
 
     char *token;
     char *commands[2000];
-    char input[2000];
+    char *input = '\0';
+    size_t bufr_size_m = 0;
     int i, j, count;
 
-    fgets(input, sizeof(input), stdin);
-    
+    // char input[2000];
+    // fgets(input, sizeof(input), stdin);
+
+    getline(&input, &bufr_size_m, stdin);
+
     token = strtok(input, ";\n");
     count = 0;
 

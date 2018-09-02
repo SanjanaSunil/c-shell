@@ -45,8 +45,7 @@ void get_process_name(int index, int pid) {
     if(fd<0) return;
 
     char command[1000];
-    size_t read_stat = read(fd, command, sizeof(command));
-    if(read_stat<0) return;
+    if(read(fd, command, sizeof(command)-1)<0) return;
 
     bg_procs_name[index] = command; 
     return;
@@ -57,22 +56,34 @@ void check_process() {
     pid_t rpid;
     int status;
 
-    for(int i=0; i<1023; ++i)
+    // for(int i=0; i<1023; ++i)
+    // {
+    //     if(bg_procs[i]!=-1) 
+    //     {
+    //         rpid = waitpid(bg_procs[i], &status, WNOHANG); 
+    //         if(rpid!=0) 
+    //         {
+    //             fprintf(stderr, "pid %d exited normally\n", bg_procs[i]);
+    //             bg_procs[i] = -1;
+    //         }
+    //     }
+    // }
+
+    while((rpid=waitpid(-1, &status, WNOHANG))>0)
     {
-        if(bg_procs[i]!=-1) 
+        int i;
+        for(i=0; i<1023; i++)
         {
-            rpid = waitpid(bg_procs[i], &status, WNOHANG); 
-
-            // if(WIFEXITED(status)) fprintf(stderr, "Process with pid %d exited normally\n", bg_procs[i]);
-            // if(WIFSIGNALED(status)) fprintf(stderr, "Process with pid %d exited because of signal\n", bg_procs[i]);
-            // if(WIFSTOPPED(status)) fprintf(stderr, "Process with pid %d was killed\n", bg_procs[i]);
-
-            if(rpid!=0) 
+            if(bg_procs[i]==rpid)
             {
-                fprintf(stderr, "pid %d exited normally\n", bg_procs[i]);
                 bg_procs[i] = -1;
+                break;
             }
         }
+
+        if(WIFEXITED(status)) fprintf(stderr, "Process with pid %d exited normally\n", rpid);
+        if(WIFSIGNALED(status)) fprintf(stderr, "Process with pid %d exited because of signal\n", rpid);
+        if(WIFSTOPPED(status)) fprintf(stderr, "Process with pid %d was killed\n", rpid);
     }
 
     return;
