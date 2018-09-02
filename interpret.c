@@ -44,26 +44,21 @@ void execute(char *command) {
     else if(strcmp(token, "ls")==0) ls(token);
     else if(strcmp(token, "pinfo")==0) pinfo(token);
     else if(strcmp(token, "clock")==0) dynamic_clock(token);
-
-    if(!strcmp(token, "cd") || !strcmp(token, "pwd") || !strcmp(token, "echo") || !strcmp(token, "ls") || !strcmp(token, "pinfo") || !strcmp(token, "clock")) return;
-
-    if(strcmp(token, "remindme")==0) background = 1;
-
-    int status;
-    pid_t pid = fork();
-    if(pid==0)
+    else
     {
-        if(strcmp(token, "remindme")==0) 
+        if(strcmp(token, "remindme")==0) background = 1;
+        int status;
+        pid_t pid = fork();
+        if(pid==0)
         {
-            remindme(token);
-            _exit(0);
+            if(strcmp(token, "remindme")==0) { remindme(token); _exit(0); }
+            else system_command(token);
         }
-        else system_command(token);
-    }
-    else 
-    {
-        if(!background) while(wait(&status)!=pid);
-        else if(strcmp(token, "remindme")!=0) add_bg(pid);
+        else 
+        {
+            if(!background) while(wait(&status)!=pid);
+            else if(strcmp(token, "remindme")!=0) add_bg(pid, token);
+        }
     }
 
     return;

@@ -21,6 +21,7 @@ void dynamic_clock(char *token) {
     signal(SIGINT, handle_sigint);
 
     token = strtok(NULL, " \n\r\t");
+    
     if(token==NULL || strcmp(token, "-t")!=0) 
     {
         printf("Usage: clock -t [interval]\n");

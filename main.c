@@ -7,13 +7,13 @@
 #include "config.h"
 #include "bg.h"
 
-// void handle_sigint() { return; }
+void signal_handler() { return; }
 
 int main() {
 
     init();
 
-    // signal(SIGINT, handle_sigint);
+    signal(SIGINT, signal_handler);
 
     while(1) 
     {

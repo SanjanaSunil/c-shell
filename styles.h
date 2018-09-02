@@ -1,3 +1,6 @@
+#ifndef STYLES_H
+#define STYLES_H
+
 #define RED  "\x1B[31m"
 #define GRN  "\x1B[32m"
 #define YEL  "\x1B[33m"
@@ -7,3 +10,5 @@
 #define WHT  "\x1B[37m"
 #define BOLD  "\033[1m"
 #define RESET  "\x1B[0m"
+
+#endif
