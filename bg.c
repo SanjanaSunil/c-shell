@@ -10,9 +10,6 @@
 
 #include "config.h"
 
-char *bg_procs_name[1024];
-void get_process_name(int, int);
-
 void add_bg(int pid, char *proc_name) {
 
     int i = 0;
@@ -21,8 +18,8 @@ void add_bg(int pid, char *proc_name) {
     {
         if(bg_procs[i]==-1)
         {
-            bg_procs[i] = pid;  
-            // get_process_name(i, pid);
+            bg_procs[i] = pid;
+            bg_procs_name[i] = proc_name;  
             return;
         }
     }
@@ -33,41 +30,10 @@ void add_bg(int pid, char *proc_name) {
     return;
 }
 
-void get_process_name(int index, int pid) {
-
-    char stringpid[1000];
-    sprintf(stringpid, "%d", pid);
-
-    char proc_name[1000];
-    snprintf(proc_name, sizeof(proc_name), "%s%s%s", "/proc/", stringpid, "/cmdline");
-
-    int fd = open(proc_name, O_RDONLY);
-    if(fd<0) return;
-
-    char command[1000];
-    if(read(fd, command, sizeof(command)-1)<0) return;
-
-    bg_procs_name[index] = command; 
-    return;
-}
-
 void check_process() {
     
     pid_t rpid;
     int status;
-
-    // for(int i=0; i<1023; ++i)
-    // {
-    //     if(bg_procs[i]!=-1) 
-    //     {
-    //         rpid = waitpid(bg_procs[i], &status, WNOHANG); 
-    //         if(rpid!=0) 
-    //         {
-    //             fprintf(stderr, "pid %d exited normally\n", bg_procs[i]);
-    //             bg_procs[i] = -1;
-    //         }
-    //     }
-    // }
 
     while((rpid=waitpid(-1, &status, WNOHANG))>0)
     {
@@ -77,13 +43,15 @@ void check_process() {
             if(bg_procs[i]==rpid)
             {
                 bg_procs[i] = -1;
+                fprintf(stderr, "%s ", bg_procs_name[i]);
+                bg_procs_name[i] = "Process";
                 break;
             }
         }
 
-        if(WIFEXITED(status)) fprintf(stderr, "Process with pid %d exited normally\n", rpid);
-        if(WIFSIGNALED(status)) fprintf(stderr, "Process with pid %d exited because of signal\n", rpid);
-        if(WIFSTOPPED(status)) fprintf(stderr, "Process with pid %d was killed\n", rpid);
+        if(WIFEXITED(status)) fprintf(stderr, "with pid %d exited normally\n", rpid);
+        if(WIFSIGNALED(status)) fprintf(stderr, "with pid %d exited because of signal\n", rpid);
+        if(WIFSTOPPED(status)) fprintf(stderr, "with pid %d was killed\n", rpid);
     }
 
     return;
