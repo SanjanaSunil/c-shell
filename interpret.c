@@ -65,7 +65,7 @@ void execute(char *command) {
     return;
 }
 
-void parse(char *command) {
+void redirect(char *command) {
 
     if(strchr(command, '<')!=NULL || strchr(command, '>')!=NULL)
     {
@@ -82,52 +82,50 @@ void parse(char *command) {
         }
 
         int i = 0;
+        int fd;
+        int std_in = dup(0), std_out = dup(1);
+        char exec_command[2000];
+        exec_command[0] = '\0';
+
         for(i=0; i<count; ++i)
         {
-            if(strcmp(command_words[i], ">")==0 || strcmp(command_words[i], ">>")==0 || strcmp(command_words[i], "<")==0)
+            if(strcmp(command_words[i], "<")==0)
             {
-                if(i==count-1) {fprintf(stderr, "syntax error near unexpected token `newline'"); return;}
+                if(i==count-1) {fprintf(stderr, "syntax error near unexpected token `newline'\n"); return;}
 
-                int j = 0;
-                char exec_command[2000];
-                exec_command[0] = '\0';
+                fd = open(command_words[i+1], O_RDONLY);
+                std_in = dup(0);
+                if(dup2(fd, 0)==-1) {perror("Error"); return;};
+                break;
+            }
 
-                for(j=0; j<i; ++j)
-                {
-                    strcat(exec_command, command_words[j]);
-                    strcat(exec_command, " ");
-                } 
-                
-                int fd;
-                if(strcmp(command_words[i], ">")==0) fd = open(command_words[i+1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-                else if(strcmp(command_words[i], ">>")==0) fd = open(command_words[i+1], O_WRONLY | O_CREAT | O_APPEND, 0644);
-                else if(strcmp(command_words[i], "<")==0) fd = open(command_words[i+1], O_RDONLY);
+            strcat(exec_command, command_words[i]);
+            strcat(exec_command, " ");
+        }
 
-                if(fd==-1) {perror("Error"); continue;}
+        for(; i<count; ++i)
+        {
+            if(strcmp(command_words[i], ">")==0) fd = open(command_words[i+1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            if(strcmp(command_words[i], ">>")==0) fd = open(command_words[i+1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+            if(strcmp(command_words[i], ">")==0 || strcmp(command_words[i], ">>")==0)
+            {
+                if(i==count-1) {fprintf(stderr, "syntax error near unexpected token `newline'\n"); return;}
 
-                if(strcmp(command_words[i], ">")==0 || strcmp(command_words[i], ">>")==0)
-                {
-                    int std_out = dup(1);
-                    if(dup2(fd, 1)==-1) perror("Error");
-                    close(fd);
-                    execute(exec_command);
-                    if(dup2(std_out, 1)==-1) perror("Error");
-                }
-                else if(strcmp(command_words[i], "<")==0)
-                {
-                    int std_in = dup(0);
-                    if(dup2(fd, 0)==-1) perror("Error");
-                    close(fd);
-                    execute(exec_command);
-                    if(dup2(std_in, 0)==-1) perror("Error");
-                }
+                std_out = dup(1);
+                if(dup2(fd, 1)==-1) {perror("Error"); return;};
+                break;
             }
         }
+        
+        execute(exec_command);
+        if(dup2(std_in, 0)==-1) {perror("Error"); return;};
+        if(dup2(std_out, 1)==-1) {perror("Error"); return;};
+
+        close(fd);
     }
     else execute(command);
-
     return;
-}
+ }
 
 void interpret_commands() {
 
@@ -151,7 +149,7 @@ void interpret_commands() {
         token = strtok(NULL, ";");
     }
 
-    for(i=0; i<count; ++i) parse(commands[i]);
+    for(i=0; i<count; ++i) redirect(commands[i]);
 
     return;
 }

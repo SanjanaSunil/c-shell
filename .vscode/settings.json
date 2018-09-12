@@ -4,6 +4,14 @@
         "builtin_commands.h": "c",
         "wait.h": "c",
         "stdlib.h": "c",
-        "pwd.h": "c"
+        "pwd.h": "c",
+        "stdio.h": "c",
+        "pinfo.h": "c",
+        "system_commands.h": "c",
+        "bg.h": "c",
+        "time.h": "c",
+        "unistd.h": "c",
+        "fcntl.h": "c",
+        "clock_cmd.h": "c"
     }
 }
