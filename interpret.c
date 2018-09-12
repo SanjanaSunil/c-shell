@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <time.h>
 
 #include "builtin_commands.h"
@@ -37,7 +38,7 @@ void execute(char *command) {
     char *token = strtok(command, " \t\n\r");
     if(token==NULL) return;
 
-    if(strcmp(token, "exit")==0 || strcmp(token, "quit")==0) _exit(0);
+    if(strcmp(token, "exit")==0 || strcmp(token, "quit")==0) exit(0);
     else if(strcmp(token, "pwd")==0) pwd();
     else if(strcmp(token, "cd")==0) cd(token);
     else if(strcmp(token, "echo")==0) echo(token);
@@ -64,6 +65,56 @@ void execute(char *command) {
     return;
 }
 
+void parse(char *command) {
+
+    if(strchr(command, '<')!=NULL || strchr(command, '>')!=NULL)
+    {
+        char *command_words[2000];
+        int count = 0;
+
+        char *token = strtok(command, " \t\n\r");
+        if(token==NULL) return;
+
+        while(token!=NULL)
+        {
+            command_words[count++] = token;
+            token = strtok(NULL, " \t\n\r");
+        }
+
+        int i = 0;
+        for(i=0; i<count; ++i)
+        {
+            if(strcmp(command_words[i], ">")==0 || strcmp(command_words[i], ">>")==0)
+            {
+                if(i==count-1) {fprintf(stderr, "syntax error near unexpected token `newline'"); return;}
+
+                int j = 0;
+                char exec_command[2000];
+                exec_command[0] = '\0';
+
+                for(j=0; j<i; ++j)
+                {
+                    strcat(exec_command, command_words[j]);
+                    strcat(exec_command, " ");
+                } 
+                
+                int fd;
+                if(strcmp(command_words[i], ">")==0) fd = open(command_words[i+1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                else if(strcmp(command_words[i], ">>")==0) fd = open(command_words[i+1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+
+                int sout = dup(1);
+                if(dup2(fd, 1)==-1) perror("Error");
+                close(fd);
+                execute(exec_command);
+                if(dup2(sout, 1)==-1) perror("Error");
+            }
+        }
+    }
+    else execute(command);
+
+    return;
+}
+
 void interpret_commands() {
 
     char *token;
@@ -86,7 +137,7 @@ void interpret_commands() {
         token = strtok(NULL, ";");
     }
 
-    for(i=0; i<count; ++i) execute(commands[i]);
+    for(i=0; i<count; ++i) parse(commands[i]);
 
     return;
 }
