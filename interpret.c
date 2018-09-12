@@ -84,7 +84,7 @@ void parse(char *command) {
         int i = 0;
         for(i=0; i<count; ++i)
         {
-            if(strcmp(command_words[i], ">")==0 || strcmp(command_words[i], ">>")==0)
+            if(strcmp(command_words[i], ">")==0 || strcmp(command_words[i], ">>")==0 || strcmp(command_words[i], "<")==0)
             {
                 if(i==count-1) {fprintf(stderr, "syntax error near unexpected token `newline'"); return;}
 
@@ -101,12 +101,26 @@ void parse(char *command) {
                 int fd;
                 if(strcmp(command_words[i], ">")==0) fd = open(command_words[i+1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
                 else if(strcmp(command_words[i], ">>")==0) fd = open(command_words[i+1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+                else if(strcmp(command_words[i], "<")==0) fd = open(command_words[i+1], O_RDONLY);
 
-                int sout = dup(1);
-                if(dup2(fd, 1)==-1) perror("Error");
-                close(fd);
-                execute(exec_command);
-                if(dup2(sout, 1)==-1) perror("Error");
+                if(fd==-1) {perror("Error"); continue;}
+
+                if(strcmp(command_words[i], ">")==0 || strcmp(command_words[i], ">>")==0)
+                {
+                    int std_out = dup(1);
+                    if(dup2(fd, 1)==-1) perror("Error");
+                    close(fd);
+                    execute(exec_command);
+                    if(dup2(std_out, 1)==-1) perror("Error");
+                }
+                else if(strcmp(command_words[i], "<")==0)
+                {
+                    int std_in = dup(0);
+                    if(dup2(fd, 0)==-1) perror("Error");
+                    close(fd);
+                    execute(exec_command);
+                    if(dup2(std_in, 0)==-1) perror("Error");
+                }
             }
         }
     }
