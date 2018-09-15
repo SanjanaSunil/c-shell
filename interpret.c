@@ -12,11 +12,9 @@
 
 #include "builtin_commands.h"
 #include "system_commands.h"
-#include "pinfo.h"
+#include "user_commands.h"
 #include "bg.h"
 #include "config.h"
-#include "reminder.h"
-#include "clock_cmd.h"
 
 void execute(char *command) {
 
@@ -127,6 +125,57 @@ void redirect(char *command) {
     return;
  }
 
+void pipe_check(char *command) {
+
+    char *pipe_command[2000];
+
+    char *token = strtok(command, "|");
+    if(token==NULL) return;
+
+    int count = 0;
+    while(token!=NULL)
+    {
+        pipe_command[count++] = token;
+        token = strtok(NULL, "|");
+    }
+
+    int i = 0;
+
+    // Save for later
+    int std_in = dup(0);
+    int std_out = dup(1);
+    
+    int temp_read = dup(0); // Read side 
+    int temp_write = dup(1);
+
+    for(i=0; i<count; ++i)
+    {
+        dup2(temp_read, 0);
+        close(temp_read);
+
+        if(i==count-1) temp_write = dup(std_out); // Redirect to stdout if last
+        else 
+        {
+            int pipefd[2];
+            pipe(pipefd);
+            temp_write = pipefd[1];
+            temp_read = pipefd[0];
+        }
+
+        dup2(temp_write, 1);
+        close(temp_write);
+
+        redirect(pipe_command[i]); 
+
+    }
+
+    // Restore
+    dup2(std_in, 0);
+    dup2(std_out, 1);
+
+    return;
+}
+
 void interpret_commands() {
 
     char *token;
@@ -149,7 +198,7 @@ void interpret_commands() {
         token = strtok(NULL, ";");
     }
 
-    for(i=0; i<count; ++i) redirect(commands[i]);
+    for(i=0; i<count; ++i) pipe_check   (commands[i]);
 
     return;
 }

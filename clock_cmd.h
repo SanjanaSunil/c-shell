@@ -1,1 +1,0 @@
-void dynamic_clock(char *);
