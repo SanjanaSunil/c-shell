@@ -101,7 +101,7 @@ void redirect(char *command) {
 
                     fd = open(command_words[i+1], O_RDONLY);
                     std_in = dup(0);
-                    if(dup2(fd, 0)==-1) {perror("Error"); return;}
+                    if(dup2(fd, 0)==-1) {perror("Error"); break;}
                     close(fd);
                     break;
                 }
@@ -120,7 +120,7 @@ void redirect(char *command) {
                 if(i==count-1) {fprintf(stderr, "syntax error near unexpected token `newline'\n"); return;}
 
                 std_out = dup(1);
-                if(dup2(fd, 1)==-1) {perror("Error"); return;}
+                if(dup2(fd, 1)==-1) {perror("Error"); break;}
                 close(fd);
                 break;
             }
@@ -159,37 +159,34 @@ void pipe_check(char *command) {
 
     int i = 0;
 
-    // Save for later
-    int std_in = dup(0);
-    int std_out = dup(1);
-    
-    int temp_read = dup(0); // Read side 
-    int temp_write = dup(1);
+    int std_in = dup(0), std_out = dup(1);   
+    int temp_read = dup(0), temp_write = dup(1);
 
     for(i=0; i<count; ++i)
     {
-        dup2(temp_read, 0);
+        if(dup2(temp_read, 0)==-1) {perror("Error"); break;}
         close(temp_read);
 
-        if(i==count-1) temp_write = dup(std_out); // Redirect to stdout if last
+        if(i==count-1) temp_write = dup(std_out);
         else 
         {
             int pipefd[2];
-            pipe(pipefd);
+            if(pipe(pipefd)==-1) {perror("pipe"); break;}
             temp_write = pipefd[1];
             temp_read = pipefd[0];
         }
 
-        dup2(temp_write, 1);
+        if(dup2(temp_write, 1)==-1) {perror("Error"); break;}
         close(temp_write);
 
         redirect(pipe_command[i]); 
 
     }
 
-    // Restore
-    dup2(std_in, 0);
-    dup2(std_out, 1);
+    if(dup2(std_in, 0)==-1) {perror("Error"); return;}
+    close(std_in);
+    if(dup2(std_out, 1)==-1) {perror("Error"); return;}
+    close(std_out);
 
     return;
 }
@@ -216,7 +213,7 @@ void interpret_commands() {
         token = strtok(NULL, ";");
     }
 
-    for(i=0; i<count; ++i) pipe_check   (commands[i]);
+    for(i=0; i<count; ++i) pipe_check(commands[i]);
 
     return;
 }
