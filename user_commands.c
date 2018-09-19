@@ -198,7 +198,7 @@ void remindme(char *token) {
 void addenv(char *token) {
 
     token = strtok(NULL, " \t\n\r");
-    if(token==NULL) {printf("\nUsage: setenv var [value]\n"); return;}
+    if(token==NULL) {printf("Usage: setenv var [value]\n"); return;}
 
     char *var = token;
     char *value = "";
@@ -208,7 +208,7 @@ void addenv(char *token) {
     {
         value = token;
         token = strtok(NULL, " \t\n\r");
-        if(token!=NULL) {printf("\nUsage: setenv var [value]\n"); return;}
+        if(token!=NULL) {printf("Usage: setenv var [value]\n"); return;}
     }
 
     if(setenv(var, value, 1)==-1) {perror("Error"); return;}
