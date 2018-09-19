@@ -42,6 +42,7 @@ void execute(char *command) {
     else if(strcmp(token, "echo")==0) echo(token);
     else if(strcmp(token, "ls")==0) ls(token);
     else if(strcmp(token, "pinfo")==0) pinfo(token);
+    else if(strcmp(token, "setenv")==0) addenv(token);
     else if(strcmp(token, "clock")==0) dynamic_clock(token);
     else
     {
@@ -50,7 +51,7 @@ void execute(char *command) {
         pid_t pid = fork();
         if(pid==0)
         {
-            if(strcmp(token, "remindme")==0) { remindme(token); _exit(0); }
+            if(strcmp(token, "remindme")==0) {remindme(token); _exit(0);}
             else system_command(token);
         }
         else 
