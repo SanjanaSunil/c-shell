@@ -67,6 +67,12 @@ void redirect(char *command) {
 
     if(strchr(command, '<')!=NULL || strchr(command, '>')!=NULL)
     {
+        int input_flag = 0;
+        int output_flag = 0;
+
+        if(strchr(command, '<')!=NULL) input_flag = 1;
+        if(strchr(command, '>')!=NULL) output_flag = 1;
+
         char *command_words[2000];
         int count = 0;
 
@@ -85,20 +91,24 @@ void redirect(char *command) {
         char exec_command[2000];
         exec_command[0] = '\0';
 
-        for(i=0; i<count; ++i)
+        if(input_flag)
         {
-            if(strcmp(command_words[i], "<")==0)
+            for(i=0; i<count; ++i)
             {
-                if(i==count-1) {fprintf(stderr, "syntax error near unexpected token `newline'\n"); return;}
+                if(strcmp(command_words[i], "<")==0)
+                {
+                    if(i==count-1) {fprintf(stderr, "syntax error near unexpected token `newline'\n"); return;}
 
-                fd = open(command_words[i+1], O_RDONLY);
-                std_in = dup(0);
-                if(dup2(fd, 0)==-1) {perror("Error"); return;};
-                break;
+                    fd = open(command_words[i+1], O_RDONLY);
+                    std_in = dup(0);
+                    if(dup2(fd, 0)==-1) {perror("Error"); return;}
+                    close(fd);
+                    break;
+                }
+
+                strcat(exec_command, command_words[i]);
+                strcat(exec_command, " ");
             }
-
-            strcat(exec_command, command_words[i]);
-            strcat(exec_command, " ");
         }
 
         for(; i<count; ++i)
@@ -110,14 +120,22 @@ void redirect(char *command) {
                 if(i==count-1) {fprintf(stderr, "syntax error near unexpected token `newline'\n"); return;}
 
                 std_out = dup(1);
-                if(dup2(fd, 1)==-1) {perror("Error"); return;};
+                if(dup2(fd, 1)==-1) {perror("Error"); return;}
+                close(fd);
                 break;
             }
-        }
+            if(output_flag && !input_flag) 
+            {
+                strcat(exec_command, command_words[i]);
+                strcat(exec_command, " ");
+            }
+        }   
         
         execute(exec_command);
-        if(dup2(std_in, 0)==-1) {perror("Error"); return;};
-        if(dup2(std_out, 1)==-1) {perror("Error"); return;};
+        if(dup2(std_in, 0)==-1) {perror("Error"); return;}
+        close(std_in);
+        if(dup2(std_out, 1)==-1) {perror("Error"); return;}
+        close(std_out);
 
         close(fd);
     }
