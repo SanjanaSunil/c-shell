@@ -195,7 +195,7 @@ void remindme(char *token) {
     return;
 }
 
-void addenv(char *token) {
+void add_env(char *token) {
 
     token = strtok(NULL, " \t\n\r");
     if(token==NULL) {printf("Usage: setenv var [value]\n"); return;}
@@ -212,6 +212,21 @@ void addenv(char *token) {
     }
 
     if(setenv(var, value, 1)==-1) {perror("Error"); return;}
+
+    return;
+}
+
+void remove_env(char *token) {
+
+    token = strtok(NULL, " \t\n\r");
+    if(token==NULL) {printf("Usage: unsetenv var\n"); return;}
+
+    char *var = token;
+
+    token = strtok(NULL, " \t\n\r");
+    if(token!=NULL) {printf("Usage: unsetenv var\n"); return;}
+
+    if(unsetenv(var)==-1) {perror("Error"); return;}
 
     return;
 }
