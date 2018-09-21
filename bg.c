@@ -45,13 +45,13 @@ void check_process() {
                 bg_procs[i] = -1;
                 fprintf(stderr, "%s ", bg_procs_name[i]);
                 bg_procs_name[i] = "Process";
+                
+                if(WIFEXITED(status)) fprintf(stderr, "with pid %d exited normally\n", rpid);
+                if(WIFSIGNALED(status)) fprintf(stderr, "with pid %d exited because of signal\n", rpid);
+                if(WIFSTOPPED(status)) fprintf(stderr, "with pid %d was killed\n", rpid);
                 break;
             }
         }
-
-        if(WIFEXITED(status)) fprintf(stderr, "with pid %d exited normally\n", rpid);
-        if(WIFSIGNALED(status)) fprintf(stderr, "with pid %d exited because of signal\n", rpid);
-        if(WIFSTOPPED(status)) fprintf(stderr, "with pid %d was killed\n", rpid);
     }
 
     return;

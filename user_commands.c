@@ -160,7 +160,7 @@ void remindme(char *token) {
         return;
     }
 
-    char *endchar = token + strlen(token)-1;
+    char *endchar = token + strlen(token) - 1;
     char **endptr = &endchar;
     int seconds = strtol(token, endptr, 10);
     // int seconds = atoi(token);
@@ -228,5 +228,109 @@ void remove_env(char *token) {
 
     if(unsetenv(var)==-1) {perror("Error"); return;}
 
+    return;
+}
+
+void jobs(char *token) {
+
+    token = strtok(NULL, " \t\n\r");
+    if(token!=NULL) {printf("Usage: jobs\n"); return;}
+
+    int bg_create_time[1024];
+    char *bg_state[1024];
+    int bg_pid[1024];
+    char *bg_name[1024];
+
+    int i = 0, j = 0;
+    for(i=0; i<1023; ++i) bg_create_time[i] = -1;
+
+    for(i=0; i<1023; ++i) 
+    {
+        if(bg_procs[i]==-1) continue;
+
+        int pid;
+        char stringpid[1000];
+        pid = bg_procs[i];
+        sprintf(stringpid, "%d", pid);
+
+        char proc_stat[1000];
+        snprintf(proc_stat, sizeof(proc_stat), "%s%s%s", "/proc/", stringpid, "/stat");
+
+        int stat_fd = open(proc_stat, O_RDONLY);
+        if(stat_fd<0) continue;
+
+        char process_info[100000];
+        size_t read_stat = read(stat_fd, process_info, sizeof(process_info));
+        if(read_stat<0) continue;
+
+        int count = 1;
+        char *info = strtok(process_info, " \n\r\t");
+        while(info!=NULL)
+        {
+            if(count==3) bg_state[i] = info;
+            if(count==22) 
+            {
+                char *endchar = info + strlen(info) - 1;
+                char **endptr = &endchar;
+                bg_create_time[i] = strtol(info, endptr, 10);
+                break;
+            }
+            count++;
+            info = strtok(NULL, " \n\r\t");
+        }
+
+        bg_pid[i] = bg_procs[i];
+        bg_name[i] = bg_procs_name[i];
+
+        close(stat_fd);
+    }
+
+    // Sorting 
+    for(i=0; i<1023; ++i)
+    {
+        for(j=i+1; j<1023; ++j)
+        {
+            if(bg_create_time[j]<=bg_create_time[i])
+            {
+                int temp_time = bg_create_time[i];
+                bg_create_time[i] = bg_create_time[j];
+                bg_create_time[j] = temp_time;
+
+                char *temp_state = bg_state[i];
+                bg_state[i] = bg_state[j];
+                bg_state[j] = temp_state;
+
+                int temp_pid = bg_pid[i];
+                bg_pid[i] = bg_pid[j];
+                bg_pid[j] = temp_pid;
+
+                char *temp_name = bg_name[i];
+                bg_name[i] = bg_name[j];
+                bg_name[j] = temp_name;
+            }
+        }
+    }
+
+    int count = 1;
+    for(i=0; i<1023; ++i)
+    {
+        if(bg_create_time[i]==-1) continue;
+
+        if(strcmp(bg_state[i], "R")==0) bg_state[i] = "Running";
+        else if(strcmp(bg_state[i], "S")==0) bg_state[i] = "Sleeping";
+        else if(strcmp(bg_state[i], "D")==0) bg_state[i] = "Sleeping";
+        else if(strcmp(bg_state[i], "Z")==0) bg_state[i] = "Zombie";
+        else if(strcmp(bg_state[i], "T")==0) bg_state[i] = "Stopped";
+        else if(strcmp(bg_state[i], "t")==0) bg_state[i] = "Stopped";
+        else if(strcmp(bg_state[i], "W")==0) bg_state[i] = "Paging";
+        else if(strcmp(bg_state[i], "X")==0) bg_state[i] = "Dead";
+        else if(strcmp(bg_state[i], "x")==0) bg_state[i] = "Dead";
+        else if(strcmp(bg_state[i], "K")==0) bg_state[i] = "Wakekill";
+        else if(strcmp(bg_state[i], "W")==0) bg_state[i] = "Waking";
+        else if(strcmp(bg_state[i], "P")==0) bg_state[i] = "Parked";
+
+        printf("[%d]   %s   %s [%d]\n", count, bg_state[i], bg_name[i], bg_pid[i]);
+        count++;
+    }
     return;
 }

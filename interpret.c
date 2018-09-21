@@ -44,6 +44,7 @@ void execute(char *command) {
     else if(strcmp(token, "pinfo")==0) pinfo(token);
     else if(strcmp(token, "setenv")==0) add_env(token);
     else if(strcmp(token, "unsetenv")==0) remove_env(token);
+    else if(strcmp(token, "jobs")==0) jobs(token);
     else if(strcmp(token, "clock")==0) dynamic_clock(token);
     else
     {
@@ -58,7 +59,7 @@ void execute(char *command) {
         else 
         {
             if(!background) while(wait(&status)!=pid);
-            else if(strcmp(token, "remindme")!=0) add_bg(pid, token);
+            else /*if(strcmp(token, "remindme")!=0)*/ add_bg(pid, token);
         }
     }
 
