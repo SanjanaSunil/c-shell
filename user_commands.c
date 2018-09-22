@@ -231,10 +231,36 @@ void remove_env(char *token) {
     return;
 }
 
-void jobs(char *token) {
+void jobs(char *token, int kjob) {
 
     token = strtok(NULL, " \t\n\r");
-    if(token!=NULL) {printf("Usage: jobs\n"); return;}
+    if(token!=NULL && !kjob) {printf("Usage: jobs\n"); return;}
+    
+    int job_id = -1;
+    int kjob_pid = -1;
+    int signal_no = -1;
+
+    char *temp;
+    char *endchar;
+    char **endptr;
+
+    if(kjob) 
+    {
+        if(token==NULL) {printf("Usage: kjob <job number> <signal number>\n"); return;}
+
+        temp = token;
+        endchar = temp + strlen(temp) - 1;
+        endptr = &endchar;
+        job_id = strtol(temp, endptr, 10);
+        token = strtok(NULL, " \t\n\r");
+
+        if(token==NULL) {printf("Usage: kjob <job number> <signal number>\n"); return;}
+
+        temp = token;
+        endchar = temp + strlen(temp) - 1;
+        endptr = &endchar;
+        signal_no = strtol(temp, endptr, 10);
+    }
 
     int bg_create_time[1024];
     char *bg_state[1024];
@@ -270,8 +296,8 @@ void jobs(char *token) {
             if(count==3) bg_state[i] = info;
             if(count==22) 
             {
-                char *endchar = info + strlen(info) - 1;
-                char **endptr = &endchar;
+                endchar = info + strlen(info) - 1;
+                endptr = &endchar;
                 bg_create_time[i] = strtol(info, endptr, 10);
                 break;
             }
@@ -329,8 +355,13 @@ void jobs(char *token) {
         else if(strcmp(bg_state[i], "W")==0) bg_state[i] = "Waking";
         else if(strcmp(bg_state[i], "P")==0) bg_state[i] = "Parked";
 
-        printf("[%d]   %s   %s [%d]\n", count, bg_state[i], bg_name[i], bg_pid[i]);
+        if(!kjob) printf("[%d]   %s   %s [%d]\n", count, bg_state[i], bg_name[i], bg_pid[i]);
+        else if(count==job_id) {kjob_pid = bg_pid[i]; break;}
+
         count++;
     }
+
+    if(kjob) kill(kjob_pid, signal_no);
+
     return;
 }
