@@ -356,12 +356,14 @@ void jobs(char *token, int kjob) {
         else if(strcmp(bg_state[i], "P")==0) bg_state[i] = "Parked";
 
         if(!kjob) printf("[%d]   %s   %s [%d]\n", count, bg_state[i], bg_name[i], bg_pid[i]);
-        else if(count==job_id) {kjob_pid = bg_pid[i]; break;}
+        else if(count==job_id) 
+        {
+            kjob_pid = bg_pid[i]; 
+            if(kill(kjob_pid, signal_no)<0) perror("Error");
+        }
 
         count++;
     }
-
-    if(kjob) kill(kjob_pid, signal_no);
 
     return;
 }
