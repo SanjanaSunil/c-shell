@@ -12,6 +12,7 @@
 
 #include "config.h"
 #include "styles.h"
+#include "signals.h"
 
 volatile sig_atomic_t stop;
 
@@ -372,18 +373,9 @@ void jobs(char *token, char *command_type) {
     {
         if(bg_create_time[i]==-1) continue;
 
-        if(strcmp(bg_state[i], "R")==0) bg_state[i] = "Running";
-        else if(strcmp(bg_state[i], "S")==0) bg_state[i] = "Sleeping";
-        else if(strcmp(bg_state[i], "D")==0) bg_state[i] = "Sleeping";
-        else if(strcmp(bg_state[i], "Z")==0) bg_state[i] = "Zombie";
-        else if(strcmp(bg_state[i], "T")==0) bg_state[i] = "Stopped";
+        if(strcmp(bg_state[i], "T")==0) bg_state[i] = "Stopped";
         else if(strcmp(bg_state[i], "t")==0) bg_state[i] = "Stopped";
-        else if(strcmp(bg_state[i], "W")==0) bg_state[i] = "Paging";
-        else if(strcmp(bg_state[i], "X")==0) bg_state[i] = "Dead";
-        else if(strcmp(bg_state[i], "x")==0) bg_state[i] = "Dead";
-        else if(strcmp(bg_state[i], "K")==0) bg_state[i] = "Wakekill";
-        else if(strcmp(bg_state[i], "W")==0) bg_state[i] = "Waking";
-        else if(strcmp(bg_state[i], "P")==0) bg_state[i] = "Parked";
+        else bg_state[i] = "Running";
 
         if(!strcmp(command_type, "jobs")) printf("[%d]   %s   %s [%d]\n", count, bg_state[i], bg_name[i], bg_pid[i]);
         else if(count==job_id && !strcmp(command_type, "kjob")) 
@@ -404,6 +396,8 @@ void jobs(char *token, char *command_type) {
             }
 
             int status;
+            current_pid = bg_pid[i];
+            signal(SIGINT, signal_handler);
             if(waitpid(bg_pid[i], &status, WUNTRACED)<0) {perror("Error"); return;}
             break;
         }

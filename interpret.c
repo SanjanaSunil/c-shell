@@ -16,15 +16,7 @@
 #include "user_commands.h"
 #include "bg.h"
 #include "config.h"
-
-pid_t shell_pid;
-pid_t current_pid;
-
-void ctrlc_handler(int signum) { 
-    for(int i=0; i<1023; ++i) if(current_pid==bg_procs[i]) {return;}
-    if(current_pid!=shell_pid) kill(current_pid, 9);
-    return;
-}
+#include "signals.h"
 
 void execute(char *command) {
 
@@ -64,18 +56,19 @@ void execute(char *command) {
     {
         if(strcmp(token, "remindme")==0) background = 1;
         int status;
-        shell_pid = getpid();
         pid_t pid = fork();
         if(pid==0)
         {
-            signal(SIGINT, ctrlc_handler);
+            signal(SIGINT, signal_handler);
+            signal(SIGTSTP, signal_handler);
             current_pid = pid;
             if(strcmp(token, "remindme")==0) {remindme(token); _exit(0);}
             else system_command(token);
         }
         else 
         {
-            signal(SIGINT, ctrlc_handler);
+            signal(SIGINT, signal_handler);
+            signal(SIGTSTP, signal_handler);
             current_pid = pid;
             if(background) setpgid(pid, pid);
             if(!background) while(wait(&status)!=current_pid);
@@ -226,6 +219,8 @@ void interpret_commands() {
     // fgets(input, sizeof(input), stdin);
 
     getline(&input, &bufr_size_m, stdin);
+
+    if(*input=='\0') {printf("\n"); return;}
 
     token = strtok(input, ";\n");
     count = 0;
