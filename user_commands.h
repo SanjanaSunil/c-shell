@@ -3,4 +3,4 @@ void pinfo(char *);
 void remindme(char *);
 void add_env(char *);
 void remove_env(char *);
-void jobs(char *, int);
+void jobs(char *, char *);

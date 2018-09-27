@@ -9,12 +9,22 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <time.h>
+#include <signal.h>
 
 #include "builtin_commands.h"
 #include "system_commands.h"
 #include "user_commands.h"
 #include "bg.h"
 #include "config.h"
+
+pid_t shell_pid;
+pid_t current_pid;
+
+void ctrlc_handler(int signum) { 
+    for(int i=0; i<1023; ++i) if(current_pid==bg_procs[i]) {return;}
+    if(current_pid!=shell_pid) kill(current_pid, 9);
+    return;
+}
 
 void execute(char *command) {
 
@@ -44,22 +54,30 @@ void execute(char *command) {
     else if(strcmp(token, "pinfo")==0) pinfo(token);
     else if(strcmp(token, "setenv")==0) add_env(token);
     else if(strcmp(token, "unsetenv")==0) remove_env(token);
-    else if(strcmp(token, "jobs")==0) jobs(token, 0);
-    else if(strcmp(token, "kjob")==0) jobs(token, 1);
+    else if(strcmp(token, "jobs")==0) jobs(token, "jobs");
+    else if(strcmp(token, "kjob")==0) jobs(token, "kjob");
+    else if(strcmp(token, "fg")==0) jobs(token, "fg");
+    else if(strcmp(token, "bg")==0) jobs(token, "bg");
     else if(strcmp(token, "clock")==0) dynamic_clock(token);
     else
     {
         if(strcmp(token, "remindme")==0) background = 1;
         int status;
+        shell_pid = getpid();
         pid_t pid = fork();
         if(pid==0)
         {
+            signal(SIGINT, ctrlc_handler);
+            current_pid = pid;
             if(strcmp(token, "remindme")==0) {remindme(token); _exit(0);}
             else system_command(token);
         }
         else 
         {
-            if(!background) while(wait(&status)!=pid);
+            signal(SIGINT, ctrlc_handler);
+            current_pid = pid;
+            if(background) setpgid(pid, pid);
+            if(!background) while(wait(&status)!=current_pid);
             else /*if(strcmp(token, "remindme")!=0)*/ add_bg(pid, token);
         }
     }

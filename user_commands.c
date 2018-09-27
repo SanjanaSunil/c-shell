@@ -231,22 +231,27 @@ void remove_env(char *token) {
     return;
 }
 
-void jobs(char *token, int kjob) {
+void jobs(char *token, char *command_type) {
 
     token = strtok(NULL, " \t\n\r");
-    if(token!=NULL && !kjob) {printf("Usage: jobs\n"); return;}
+    if(token!=NULL && !strcmp(command_type, "jobs")) {printf("Usage: jobs\n"); return;}
     
     int job_id = -1;
-    int kjob_pid = -1;
     int signal_no = -1;
 
     char *temp;
     char *endchar;
     char **endptr;
 
-    if(kjob) 
+    if(!strcmp(command_type, "kjob") || !strcmp(command_type, "fg") || !strcmp(command_type, "bg")) 
     {
-        if(token==NULL) {printf("Usage: kjob <job number> <signal number>\n"); return;}
+        if(token==NULL) 
+        {
+            if(!strcmp(command_type, "kjob")) printf("Usage: kjob <job number> <signal number>\n"); 
+            if(!strcmp(command_type, "fg")) printf("Usage: fg <job number>\n");
+            if(!strcmp(command_type, "bg")) printf("Usage: bg <job number>\n");
+            return;
+        }
 
         temp = token;
         endchar = temp + strlen(temp) - 1;
@@ -254,12 +259,17 @@ void jobs(char *token, int kjob) {
         job_id = strtol(temp, endptr, 10);
         token = strtok(NULL, " \t\n\r");
 
-        if(token==NULL) {printf("Usage: kjob <job number> <signal number>\n"); return;}
+        if(token==NULL && !strcmp(command_type, "kjob")) {printf("Usage: kjob <job number> <signal number>\n"); return;}
+        if(token!=NULL && !strcmp(command_type, "fg")) {printf("Usage: fg <job number>\n"); return;}
+        if(token!=NULL && !strcmp(command_type, "bg")) {printf("Usage: bg <job number>\n"); return;}
 
-        temp = token;
-        endchar = temp + strlen(temp) - 1;
-        endptr = &endchar;
-        signal_no = strtol(temp, endptr, 10);
+        if(!strcmp(command_type, "kjob"))
+        {
+            temp = token;
+            endchar = temp + strlen(temp) - 1;
+            endptr = &endchar;
+            signal_no = strtol(temp, endptr, 10);
+        }
     }
 
     int bg_create_time[1024];
@@ -355,11 +365,32 @@ void jobs(char *token, int kjob) {
         else if(strcmp(bg_state[i], "W")==0) bg_state[i] = "Waking";
         else if(strcmp(bg_state[i], "P")==0) bg_state[i] = "Parked";
 
-        if(!kjob) printf("[%d]   %s   %s [%d]\n", count, bg_state[i], bg_name[i], bg_pid[i]);
-        else if(count==job_id) 
+        if(!strcmp(command_type, "jobs")) printf("[%d]   %s   %s [%d]\n", count, bg_state[i], bg_name[i], bg_pid[i]);
+        else if(count==job_id && !strcmp(command_type, "kjob")) 
         {
-            kjob_pid = bg_pid[i]; 
-            if(kill(kjob_pid, signal_no)<0) perror("Error");
+            if(kill(bg_pid[i], signal_no)<0) perror("Error");
+            break;
+        }
+        else if(count==job_id && !strcmp(command_type, "fg"))
+        {
+            int j = 0;
+            for(j=0; j<1023; ++j)
+            {
+                if(bg_procs[j]==bg_pid[i])
+                {
+                    bg_procs[j] = -1;
+                    bg_procs_name[j] = "Process";
+                }
+            }
+
+            int status;
+            if(waitpid(bg_pid[i], &status, WUNTRACED)<0) {perror("Error"); return;}
+            break;
+        }
+        else if(count==job_id && !strcmp(command_type, "bg"))
+        {
+            if(kill(bg_pid[i], SIGCONT)<0) perror("Error");
+            break;
         }
 
         count++;
