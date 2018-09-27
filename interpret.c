@@ -58,6 +58,7 @@ void execute(char *command) {
     else if(strcmp(token, "kjob")==0) jobs(token, "kjob");
     else if(strcmp(token, "fg")==0) jobs(token, "fg");
     else if(strcmp(token, "bg")==0) jobs(token, "bg");
+    else if(strcmp(token, "overkill")==0) overkill(token);
     else if(strcmp(token, "clock")==0) dynamic_clock(token);
     else
     {

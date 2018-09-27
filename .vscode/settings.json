@@ -12,6 +12,7 @@
         "time.h": "c",
         "unistd.h": "c",
         "fcntl.h": "c",
-        "clock_cmd.h": "c"
+        "clock_cmd.h": "c",
+        "setjmp.h": "c"
     }
 }

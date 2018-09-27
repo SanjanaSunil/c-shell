@@ -231,6 +231,26 @@ void remove_env(char *token) {
     return;
 }
 
+void overkill(char *token) {
+
+    token = strtok(NULL, " \t\n\r");
+    if(token!=NULL) {printf("Usage: overkill\n"); return;}
+
+    int i = 0;
+
+    for(i=0; i<1023; ++i)
+    {
+        if(bg_procs[i]!=-1)
+        {
+            kill(bg_procs[i], 9);
+            bg_procs[i] = -1;
+            bg_procs_name[i] = "Process";  
+        }
+    }
+
+    return;
+}
+
 void jobs(char *token, char *command_type) {
 
     token = strtok(NULL, " \t\n\r");
