@@ -1,1 +1,0 @@
-void signal_handler(int);

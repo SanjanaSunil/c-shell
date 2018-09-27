@@ -12,17 +12,27 @@
 
 #include "config.h"
 #include "styles.h"
-#include "signals.h"
+#include "bg.h" 
 
 volatile sig_atomic_t stop;
 
 void handle_sigint(int signum) { stop = 1; }
+
+volatile sig_atomic_t ctrlc_flag;
+volatile sig_atomic_t ctrlz_flag;
+
+void handle_signal(int signum) {
+    if(signum==2) ctrlc_flag = 1;
+    if(signum==20) ctrlz_flag = 1;
+    return;
+}
 
 void dynamic_clock(char *token) {
 
     stop = 0;
 
     signal(SIGINT, handle_sigint);
+    signal(SIGTSTP, SIG_IGN);
 
     token = strtok(NULL, " \n\r\t");
     
@@ -299,7 +309,7 @@ void jobs(char *token, char *command_type) {
     char *bg_name[1024];
 
     int i = 0, j = 0;
-    for(i=0; i<1023; ++i) bg_create_time[i] = -1;
+    for(i=0; i<=1023; ++i) bg_create_time[i] = -1;
 
     for(i=0; i<1023; ++i) 
     {
@@ -324,7 +334,11 @@ void jobs(char *token, char *command_type) {
         char *info = strtok(process_info, " \n\r\t");
         while(info!=NULL)
         {
-            if(count==3) bg_state[i] = info;
+            if(count==3) 
+            {
+                bg_state[i] = (char*) malloc(100000);
+                strcpy(bg_state[i], info);
+            }
             if(count==22) 
             {
                 endchar = info + strlen(info) - 1;
@@ -345,8 +359,11 @@ void jobs(char *token, char *command_type) {
     // Sorting 
     for(i=0; i<1023; ++i)
     {
+        if(bg_create_time[i]==-1) continue;
         for(j=i+1; j<1023; ++j)
         {
+            if(bg_create_time[j]==-1) continue;
+
             if(bg_create_time[j]<=bg_create_time[i])
             {
                 int temp_time = bg_create_time[i];
@@ -364,8 +381,10 @@ void jobs(char *token, char *command_type) {
                 char *temp_name = bg_name[i];
                 bg_name[i] = bg_name[j];
                 bg_name[j] = temp_name;
+
             }
         }
+
     }
 
     int count = 1;
@@ -385,6 +404,9 @@ void jobs(char *token, char *command_type) {
         }
         else if(count==job_id && !strcmp(command_type, "fg"))
         {
+            char *process_name = (char*) malloc(10000);
+            strcpy(process_name, bg_procs_name[i]);
+
             int j = 0;
             for(j=0; j<1023; ++j)
             {
@@ -396,9 +418,25 @@ void jobs(char *token, char *command_type) {
             }
 
             int status;
-            current_pid = bg_pid[i];
-            signal(SIGINT, signal_handler);
-            if(waitpid(bg_pid[i], &status, WUNTRACED)<0) {perror("Error"); return;}
+            ctrlc_flag = 0;
+            ctrlz_flag = 0;
+
+            signal(SIGINT, handle_signal);
+            signal(SIGTSTP, handle_signal);
+
+            while(waitpid(bg_pid[i], &status, WNOHANG)!=bg_pid[i] && !ctrlc_flag && !ctrlz_flag);
+
+            if(ctrlc_flag) kill(bg_pid[i], 2);
+            else if(ctrlz_flag) 
+            {
+                setpgid(bg_pid[i], bg_pid[i]);
+                kill(bg_pid[i], 19);
+                add_bg(bg_pid[i], process_name);
+            }
+
+            ctrlc_flag = 0;
+            ctrlz_flag = 0;
+
             break;
         }
         else if(count==job_id && !strcmp(command_type, "bg"))

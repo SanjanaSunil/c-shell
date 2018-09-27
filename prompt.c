@@ -11,15 +11,11 @@
 char HOME[1000];
 int bg_procs[1024];
 char *bg_procs_name[1024];
-pid_t shell_pid;
-pid_t current_pid;
 
 void init() {
 
 	getcwd(HOME, sizeof(HOME));
 
-    shell_pid = getpid();
-    
     int i = 0;
     for(i=0; i<1024; ++i)
     {

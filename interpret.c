@@ -16,7 +16,15 @@
 #include "user_commands.h"
 #include "bg.h"
 #include "config.h"
-#include "signals.h"
+
+int ctrlc_flag;
+int ctrlz_flag;
+
+void signal_handler(int signum) {
+    if(signum==2) ctrlc_flag = 1;
+    if(signum==20) ctrlz_flag = 1;
+    return;
+}
 
 void execute(char *command) {
 
@@ -56,12 +64,11 @@ void execute(char *command) {
     {
         if(strcmp(token, "remindme")==0) background = 1;
         int status;
+        ctrlc_flag = 0;
+        ctrlz_flag = 0;
         pid_t pid = fork();
         if(pid==0)
         {
-            signal(SIGINT, signal_handler);
-            signal(SIGTSTP, signal_handler);
-            current_pid = pid;
             if(strcmp(token, "remindme")==0) {remindme(token); _exit(0);}
             else system_command(token);
         }
@@ -69,10 +76,20 @@ void execute(char *command) {
         {
             signal(SIGINT, signal_handler);
             signal(SIGTSTP, signal_handler);
-            current_pid = pid;
             if(background) setpgid(pid, pid);
-            if(!background) while(wait(&status)!=current_pid);
+            if(!background) while(waitpid(pid, &status, WNOHANG)!=pid && !ctrlc_flag && !ctrlz_flag);
             else /*if(strcmp(token, "remindme")!=0)*/ add_bg(pid, token);
+
+            if(ctrlc_flag) kill(pid, 2);
+            if(ctrlz_flag) 
+            {
+                setpgid(pid, pid);
+                kill(pid, 19);
+                add_bg(pid, token);
+            }
+
+            ctrlc_flag = 0;
+            ctrlz_flag = 0;
         }
     }
 
