@@ -242,7 +242,7 @@ void overkill(char *token) {
     {
         if(bg_procs[i]!=-1)
         {
-            kill(bg_procs[i], 9);
+            if(kill(bg_procs[i], 9)<0) perror("Error");
             bg_procs[i] = -1;
             bg_procs_name[i] = "Process";  
         }
