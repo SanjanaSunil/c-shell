@@ -1,12 +1,5 @@
 # C Shell
 
-Change system name to get Ubuntu or Linux
-Change size of everything
-Escape characters
-Remove "" for remindme and echo
-Take care of just clock command
-cd -
-
 ## Usage
 
 To run the shell, follow these steps:
@@ -18,20 +11,40 @@ To run the shell, follow these steps:
 
 ## Features
 
-- **main.c** - File from which the shell is invoked.
+* Builtin commands: ```ls```, ```cd```, ```pwd```, ```echo```
+* Support for background and foreground processes
+* Redirection and piping support
+* Signal handling
+* Additional commands
 
-- **prompt.c** - Displays prompt consisting of user, system and current directory details. The directory from which the shell is invoked is the home shell.
+#### Additional commands include:
 
-- **interpret.c** - Reads the command and executes it. Support for background processes exists. 
+* ```clock -t [time interval]```
+Dynamic clock where the time interval is in seconds.
 
-- **builtin.c** - cd, ls, echo and pwd commands are implemented. ls supports -l and -a flags. 
+* ```pinfo``` 
+Displays currect processes and their information.
 
-- **system_commands.c** - System commands are executed.
+* ```remindme [seconds] [message]```
+Displays a given message after a given time interval.
 
-- **bg.c** - All background process are stored and checked regularly whether they've exited or not.
+* ```setenv [var] [value]```
+Sets an envioronmental variable to a given value.
 
-- **pinfo.c** - _pinfo_ command is implemented that displays pid, process status, virtual memory and executable path of either the currently running process or any given pid.
+* ```unsetenv [var]```
+Unsets a given environmental variable.
 
-- **reminder.c** - _remindme_ command that reminds a custom message after a given number of seconds elapse. 
+* ```overkill```
+Kills all running processes.
 
-- **clock.c** - _clock_ command that displays dynamic date and time in the shell with a fixed time interval.
+* ```jobs```
+Lists currently running processes.
+
+* ```kjob [job number] [signal number]```
+Sends a signal to a specified job.
+
+* ```fg [job number]```
+Puts a specified job in the foreground.
+
+* ```bg [job number]```
+Changes a stopped job number to a running background job.
