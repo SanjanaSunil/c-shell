@@ -17,7 +17,7 @@ To run the shell, follow these steps:
 * Signal handling
 * Additional commands
 
-#### Additional commands include:
+#### Additional commands:
 
 * ```clock -t [time interval]```
 Dynamic clock where the time interval is in seconds.
@@ -29,7 +29,7 @@ Displays currect processes and their information.
 Displays a given message after a given time interval.
 
 * ```setenv [var] [value]```
-Sets an envioronmental variable to a given value.
+Sets an environmental variable to a given value.
 
 * ```unsetenv [var]```
 Unsets a given environmental variable.
